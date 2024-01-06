@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- Project from https://start.vaadin.com/project/a302e533-d481-48a0-97e3-7265cf579474 -->
     <groupId>com.example.application</groupId>
-    <artifactId>my-app</artifactId>
-    <name>my-app</name>
+    <artifactId>carview1.0</artifactId>
+    <name>carview1.0</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
