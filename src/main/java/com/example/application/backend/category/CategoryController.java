@@ -6,7 +6,6 @@ import com.example.application.backend.category.model.response.CategoryResponse;
 import com.example.application.backend.category.model.response.CategoryResponseType;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

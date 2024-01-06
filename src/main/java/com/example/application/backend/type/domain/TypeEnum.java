@@ -2,9 +2,11 @@ package com.example.application.backend.type.domain;
 
 import com.example.application.exception.util.ExceptionUtils;
 import com.example.application.exception.util.MessageResource;
+import lombok.Getter;
 
 import java.util.Arrays;
 
+@Getter
 public enum TypeEnum {
 
     MECHANICS((short) 0),
@@ -27,7 +29,4 @@ public enum TypeEnum {
         this.value = value;
     }
 
-    public short getValue() {
-        return value;
-    }
 }

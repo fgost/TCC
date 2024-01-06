@@ -3,8 +3,12 @@ package com.example.application.backend.users.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,24 +27,12 @@ public class UserDtoUpdate {
     @Size(max = 100, message = "{user.email.max.size}")
     private String email;
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     public void setEmail(String email) {

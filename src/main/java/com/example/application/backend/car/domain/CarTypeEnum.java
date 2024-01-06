@@ -2,9 +2,11 @@ package com.example.application.backend.car.domain;
 
 import com.example.application.exception.util.ExceptionUtils;
 import com.example.application.exception.util.MessageResource;
+import lombok.Getter;
 
 import java.util.Arrays;
 
+@Getter
 public enum CarTypeEnum {
     HATCHBACK((short) 0),
     SEDAN((short) 1),
@@ -20,9 +22,7 @@ public enum CarTypeEnum {
                 .findFirst()
                 .orElseThrow(() ->  ExceptionUtils.buildBadRequestException(message));
     }
-    public short getValue() {
-        return value;
-    }
+
     CarTypeEnum(short value) {
         this.value = value;
     }

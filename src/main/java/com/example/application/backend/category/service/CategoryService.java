@@ -7,7 +7,6 @@ import com.example.application.domain.Constants;
 import com.example.application.exception.domain.ObjectNotFoundException;
 import com.example.application.exception.util.ExceptionUtils;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,6 @@ public class CategoryService {
     public CategoryService(CategoryRepository repository) {
         this.repository = repository;
     }
-
     private final CategoryRepository repository;
 
     public List<CategoryEntity> findAll(CategoryEnum category) {

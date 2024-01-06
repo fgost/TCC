@@ -2,11 +2,9 @@ package com.example.application.backend.car.domain;
 
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,14 +15,8 @@ public class Category {
     @NotBlank
     private String categoryName;
 
-
-
     public static Builder builder() {
         return new Builder();
-    }
-
-    public String getCategoryName() {
-        return categoryName;
     }
 
     public void setCategoryName(String categoryName) {

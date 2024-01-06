@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Set;
 
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CarResponseCategory {
@@ -18,16 +18,8 @@ public class CarResponseCategory {
     @JsonProperty(value = "categories")
     private Set<Category> categories;
 
-    public String getCarModel() {
-        return carModel;
-    }
-
     public void setCarModel(String carModel) {
         this.carModel = carModel;
-    }
-
-    public Set<Category> getCategories() {
-        return categories;
     }
 
     public void setCategories(Set<Category> categories) {

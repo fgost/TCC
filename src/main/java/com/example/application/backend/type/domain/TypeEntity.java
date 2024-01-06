@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -25,24 +25,12 @@ public class TypeEntity{
         this.code = UUID.randomUUID().toString();
     }
 
-    public long getId() {
-        return id;
-    }
-
     public void setId(long id) {
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
-    }
-
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public TypeEnum getTypeName() {
-        return typeName;
     }
 
     public void setTypeName(TypeEnum typeName) {

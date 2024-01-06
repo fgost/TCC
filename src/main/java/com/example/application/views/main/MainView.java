@@ -11,15 +11,12 @@ import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.repository.UserRepositoryFront;
 import com.example.application.config.security.SecurityConfig;
 import com.example.application.views.MainLayout;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -66,27 +63,27 @@ public class MainView extends VerticalLayout {
         partsGrid.addColumn(MaintenancePartEntity::getName).setHeader("Name");
         partsGrid.addColumn(MaintenancePartEntity::getStatus).setHeader("Status");
 
-        // Configurar a grid de carros
+        // Remova a configuração da coluna de modelo de carro da grid
         carsGrid.removeAllColumns();
-        carsGrid.addColumn(CarEntity::getCarModel).setHeader("Car Model").setWidth("40%");
 
-        carsGrid.addComponentColumn(carEntity -> {
-            Button deleteButton = new Button("Delete");
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            deleteButton.addClickListener(event -> showConfirmationDialog(carEntity));
+        // Crie um layout horizontal para os botões de carros
+        HorizontalLayout carsLayout = new HorizontalLayout();
+        carsLayout.setWidthFull(); // Define a largura total do layout
 
-            Button editButton = new Button("Edit");
-            editButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            editButton.addClickListener(event -> showEditCarDialog(carEntity));
+        // Adicione botões para cada carro ao layout horizontal
+        List<CarEntity> cars = locateCars();
+        for (CarEntity carEntity : cars) {
+            Button carButton = new Button(carEntity.getCarModel());
+            carButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            carButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
+            carButton.addClickListener(event -> loadMaintenancePartsForCar(carEntity));
 
-            HorizontalLayout actionsLayout = new HorizontalLayout(deleteButton, editButton);
-            actionsLayout.setSpacing(true); // Adiciona espaço entre os botões
+            carsLayout.add(carButton);
+            carsLayout.setFlexGrow(1, carButton); // Define o botão para ocupar o espaço disponível
+        }
 
-            return actionsLayout;
-        }).setHeader("Actions").setWidth("60%");
-
+        // Adicione o layout horizontal de carros ao layout vertical principal
+        add(new H3("Cars"), carsLayout, new H3("Maintenance Parts"), partsGrid);
 
         carsGrid.asSingleSelect().addValueChangeListener(event -> {
             CarEntity selectedCar = event.getValue();
@@ -94,9 +91,6 @@ public class MainView extends VerticalLayout {
                 loadMaintenancePartsForCar(selectedCar);
             }
         });
-
-        // Adicionar as grids ao layout
-        add(new H3("Maintenance Parts"), partsGrid, new H3("Cars"), carsGrid);
 
         // Carregar dados
         loadPartsData();

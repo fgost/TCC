@@ -3,8 +3,12 @@ package com.example.application.backend.category.domain;
 import com.example.application.backend.type.domain.TypeEnum;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
 @Builder
 @NoArgsConstructor
 @Embeddable
@@ -13,10 +17,6 @@ public class Type {
 
     @NotBlank
     private TypeEnum typeName;
-
-    public TypeEnum getTypeName() {
-        return typeName;
-    }
 
     public void setTypeName(TypeEnum typeName) {
         this.typeName = typeName;

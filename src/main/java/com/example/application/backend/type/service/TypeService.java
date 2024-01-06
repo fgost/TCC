@@ -18,8 +18,6 @@ import java.util.List;
 public class TypeService {
     private TypeRepository repository;
 
-
-
     public List<TypeEntity> findAll(TypeEnum typeName) {
             return repository.findAll();
     }
