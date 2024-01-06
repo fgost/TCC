@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "types")
-public class TypeEntity{
+public class TypeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,7 +12,7 @@ public class BusinessException extends RuntimeException {
     private final String message;
 
     public BusinessException() {
-        this.code =  ConstantsExceptions.EXCEPTION_CODE_BUSINESS;
+        this.code = ConstantsExceptions.EXCEPTION_CODE_BUSINESS;
         this.message = "Denied by business rule";
     }
 

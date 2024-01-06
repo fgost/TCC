@@ -17,8 +17,8 @@ databaseChangeLog:
   - include:
       file: db/migration/08-create_table_parts.sql
 
-#  - include:
-#      file: db/initialize/initialize_car.sql
+  #  - include:
+  #      file: db/initialize/initialize_car.sql
 
   - include:
       file: db/initialize/initialize_category.sql
@@ -31,9 +31,9 @@ databaseChangeLog:
 
   - include:
       file: db/initialize/initialize_categories_cars.sql
-#
-#  - include:
-#      file: db/initialize/initialize_part.sql
+  #
+  #  - include:
+  #      file: db/initialize/initialize_part.sql
 
   - include:
       file: db/migration/09-create_table_auto_maker.sql

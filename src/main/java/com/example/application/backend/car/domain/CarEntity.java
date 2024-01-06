@@ -28,14 +28,11 @@ public class CarEntity implements Serializable {
     private String autoMaker;
     private String year;
     private String color;
-    private CarTypeEnum type;
+    private String motor;
+    private String licencePlate;
     private double mileage;
+    private CarTypeEnum type;
     private long usuario;
-
-    public void setUsuario(long usuario) {
-        this.usuario = usuario;
-    }
-
     @ManyToMany
     @JoinTable(
             name = "categories_cars",
@@ -47,6 +44,18 @@ public class CarEntity implements Serializable {
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();
+    }
+
+    public void setMotor(String motor) {
+        this.motor = motor;
+    }
+
+    public void setLicencePlate(String licencePlate) {
+        this.licencePlate = licencePlate;
+    }
+
+    public void setUsuario(long usuario) {
+        this.usuario = usuario;
     }
 
     public void setId(Long id) {

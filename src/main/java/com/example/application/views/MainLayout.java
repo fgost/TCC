@@ -56,13 +56,14 @@ public class MainLayout extends AppLayout {
         addToDrawer(header, scroller, createFooter());
         setDrawerOpened(false);
     }
+
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
 
         nav.addItem(new SideNavItem("Main", MainView.class, LineAwesomeIcon.CHECK_DOUBLE_SOLID.create()));
-        nav.addItem(new SideNavItem("Insert Car", CreateCarView.class,LineAwesomeIcon.CAR_SOLID.create()));
-        nav.addItem(new SideNavItem("Maintenance Register", CreateMaintenancePartView.class,LineAwesomeIcon.HAMMER_SOLID.create()));
-        nav.addItem(new SideNavItem("Logout", LogoutView.class,LineAwesomeIcon.EXPEDITEDSSL.create()));
+        nav.addItem(new SideNavItem("Insert Car", CreateCarView.class, LineAwesomeIcon.CAR_SOLID.create()));
+        nav.addItem(new SideNavItem("Maintenance Register", CreateMaintenancePartView.class, LineAwesomeIcon.HAMMER_SOLID.create()));
+        nav.addItem(new SideNavItem("Logout", LogoutView.class, LineAwesomeIcon.EXPEDITEDSSL.create()));
         return nav;
     }
 

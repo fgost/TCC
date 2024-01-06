@@ -110,9 +110,9 @@ public class UserEntity implements UserDetails, Serializable {
         return map;
     }
 
-    public Map<String, String> getCarAsMap(){
+    public Map<String, String> getCarAsMap() {
         Map<String, String> map = new HashMap<>();
-        cars.forEach(p -> map.put(p.getCarModel(),p.getYear()));
+        cars.forEach(p -> map.put(p.getCarModel(), p.getYear()));
         return map;
     }
 

@@ -86,7 +86,7 @@ public class CarService {
         existentEntity.setMileage(entity.getMileage());
         try {
             return carRepository.save(existentEntity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.CAR_NOT_PERSISTED);
         }
     }
@@ -108,10 +108,10 @@ public class CarService {
 
     @Transactional
     public void deleteByCode(String code) {
-        try{
+        try {
             var entity = findByCode(code);
             carRepository.delete(entity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.CAR_DELETION_ERROR);
         }
     }

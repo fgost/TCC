@@ -6,13 +6,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SameIdentifierException extends BusinessException{
+public class SameIdentifierException extends BusinessException {
     private final String code;
 
     private final String message;
 
     public SameIdentifierException() {
-        this.code =  ConstantsExceptions.EXCEPTION_CODE_BUSINESS;
+        this.code = ConstantsExceptions.EXCEPTION_CODE_BUSINESS;
         this.message = "Denied by business rule";
     }
 

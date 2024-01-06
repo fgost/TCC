@@ -20,7 +20,7 @@ public enum CarTypeEnum {
         return Arrays.stream(CarTypeEnum.values())
                 .filter(it -> Short.valueOf(it.getValue()).equals(carTypeCode))
                 .findFirst()
-                .orElseThrow(() ->  ExceptionUtils.buildBadRequestException(message));
+                .orElseThrow(() -> ExceptionUtils.buildBadRequestException(message));
     }
 
     CarTypeEnum(short value) {

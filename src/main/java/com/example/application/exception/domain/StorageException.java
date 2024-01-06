@@ -1,6 +1,6 @@
 package com.example.application.exception.domain;
 
-public class StorageException extends RuntimeException{
+public class StorageException extends RuntimeException {
 
     public StorageException(String message) {
         super(message);

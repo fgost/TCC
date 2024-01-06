@@ -56,16 +56,14 @@ public class NewUserFormView extends Composite<VerticalLayout> {
                 Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
             }
             var emailForm = emailField.getValue();
-            if(userRepository.findByEmail(emailForm).isPresent()) {
+            if (userRepository.findByEmail(emailForm).isPresent()) {
                 var emailInDB = userRepository.findByEmail(emailForm).get().getEmail();
-                if(emailForm.equals(emailInDB)) {
+                if (emailForm.equals(emailInDB)) {
                     Notification.show("Email already exists.", 3000, Notification.Position.TOP_CENTER);
                 }
-            }
-            else if (!password.getValue().equals(confirmPassword.getValue())){
+            } else if (!password.getValue().equals(confirmPassword.getValue())) {
                 Notification.show("The passwords do not match. Please try again.", 3000, Notification.Position.TOP_CENTER);
-            }
-            else {
+            } else {
                 UserEntity user = new UserEntity();
                 user.setName(firstName.getValue());
                 user.setLastName(lastName.getValue());

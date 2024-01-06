@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
  * The entry point of the Spring Boot application.
  * Use the @PWA annotation make the application installable on phones, tablets
  * and some desktop browsers.
- *
  */
 @SpringBootApplication(exclude = ErrorMvcAutoConfiguration.class)
 @Theme(value = "my-app", variant = Lumo.DARK)

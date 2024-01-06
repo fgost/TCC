@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Component
 public class CategoryFacade {
     private final CategoryService categoryService;
+
     public CategoryFacade(CategoryService categoryService) {
         this.categoryService = categoryService;
     }

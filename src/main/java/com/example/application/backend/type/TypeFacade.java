@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Component
 public class TypeFacade {
-    private  TypeService typeService;
+    private TypeService typeService;
 
     public List<TypeEntity> findAll(TypeEnum typeName) {
         return typeService.findAll(typeName);

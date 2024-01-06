@@ -24,7 +24,7 @@ public class MaintenancePartRequest {
     @Size(max = 100, message = "{maintenance.part.serial.number.max.size}")
     private String serialNumber;
 
-   @NotBlank(message = "{maintenance.part.manufacturer.not.null}")
+    @NotBlank(message = "{maintenance.part.manufacturer.not.null}")
     @Size(max = 100, message = "{maintenance.part.manufacturer.max.size}")
     private String manufacturer;
 

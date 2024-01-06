@@ -66,7 +66,7 @@ public class CarController {
 
     @PutMapping("/{id}/categories")
     public ResponseEntity<CarResponse> updateCategory(@PathVariable(name = "id") String code,
-                                                  @Valid @RequestBody Set<OnlyCodeDto> ids) {
+                                                      @Valid @RequestBody Set<OnlyCodeDto> ids) {
         var response = carFacade.updateCategory(code, ids);
         return ResponseEntity.ok(response);
     }

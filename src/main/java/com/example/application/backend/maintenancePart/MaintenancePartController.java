@@ -46,7 +46,7 @@ public class MaintenancePartController {
 
     @PutMapping("/{id}")
     public ResponseEntity<MaintenancePartResponse> update(@PathVariable(name = "id") String code,
-                                               @Valid @RequestBody MaintenancePartRequest request) {
+                                                          @Valid @RequestBody MaintenancePartRequest request) {
         var response = maintenancePartFacade.update(code, request);
         return ResponseEntity.ok(response);
     }

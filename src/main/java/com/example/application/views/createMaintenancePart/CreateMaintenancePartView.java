@@ -90,11 +90,10 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         saveButton.addClickListener(event -> {
             if (partNameField.isEmpty() || descriptionField.isEmpty() || serialNumberField.isEmpty() ||
                     manufacturerField.isEmpty() || modelField.isEmpty() || installationDatePicker.isEmpty() ||
-                    lifeSpanField .isEmpty()  || costField .isEmpty()  || statusPartField  .isEmpty()  ||
-                    typeField  .isEmpty() || mileageField.isEmpty() || carField.isEmpty()) {
+                    lifeSpanField.isEmpty() || costField.isEmpty() || statusPartField.isEmpty() ||
+                    typeField.isEmpty() || mileageField.isEmpty() || carField.isEmpty()) {
                 Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
-            }
-            else {
+            } else {
                 MaintenancePartEntity partEntity = new MaintenancePartEntity();
                 partEntity.setName(partNameField.getValue());
                 partEntity.setDescription(descriptionField.getValue());

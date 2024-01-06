@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "parts")
-public class MaintenancePartEntity{
+public class MaintenancePartEntity {
 
 
     @Id
