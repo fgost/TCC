@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - include:
+      file: db/migration/01-create_table_users.sql
+
+  - include:
+      file: db/migration/03-create-revision-tables.sql
+
+  - include:
+      file: db/migration/05-create_table_cars.sql
+
+  - include:
+      file: db/migration/06-create_table_categories.sql
+
+  - include:
+      file: db/migration/07-create_table_type.sql
+
+  - include:
+      file: db/migration/08-create_table_parts.sql
+
+#  - include:
+#      file: db/initialize/initialize_car.sql
+
+  - include:
+      file: db/initialize/initialize_category.sql
+
+  - include:
+      file: db/initialize/initialize_type.sql
+
+  - include:
+      file: db/initialize/initialize_categories_types.sql
+
+  - include:
+      file: db/initialize/initialize_categories_cars.sql
+#
+#  - include:
+#      file: db/initialize/initialize_part.sql
+
+  - include:
+      file: db/migration/09-create_table_auto_maker.sql
+
+  - include:
+      file: db/initialize/initialize_auto_maker.sql

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: carview-java-api
+  liquibase:
+    url: jdbc:postgresql://localhost:5433/db-carview-api-java
+    user: user-carview-api-java
+    password: pass-carview-api-java
+    default-schema: public
+  datasource:
+    url: jdbc:postgresql://localhost:5433/db-carview-api-java
+    username: user-carview-api-java
+    password: pass-carview-api-java
+    driver: org.postgresql.Driver
+    default-schema: public

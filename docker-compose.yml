@@ -1,0 +1,35 @@
+version: '3.9'
+services:
+  carview-api-java-postgres:
+    image: postgres
+    container_name: carview-api-java-database
+    environment:
+      POSTGRES_DB: db-carview-api-java
+      POSTGRES_USER: user-carview-api-java
+      POSTGRES_PASSWORD: pass-carview-api-java
+    restart: always
+    platform: linux/amd64
+    ports:
+      - "5432:5432"
+
+  carview-api-java-pgadmin:
+    image: dpage/pgadmin4
+    container_name: carview-api-java-pgadmin
+    platform: linux/amd64
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin.carview-api-java@fghost.net"
+      PGADMIN_DEFAULT_PASSWORD: "AdmCarview@2023"
+    ports:
+      - "16545:80"
+    depends_on:
+      - carview-api-java-postgres
+
+#  carview-api-java-api:
+#    container_name: carview-api-java-api
+#    build: .
+#    restart: always
+#    platform: linux/amd64
+#    ports:
+#      - "8084:5001"
+#    depends_on:
+#      - carview-api-java-postgres
