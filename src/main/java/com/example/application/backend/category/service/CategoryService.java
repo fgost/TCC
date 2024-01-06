@@ -7,7 +7,6 @@ import com.example.application.domain.Constants;
 import com.example.application.exception.domain.ObjectNotFoundException;
 import com.example.application.exception.util.ExceptionUtils;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +33,9 @@ public class CategoryService {
 
     @Transactional
     public CategoryEntity insert(CategoryEntity categoryEntity) {
-        try{
+        try {
             return repository.save(categoryEntity);
-        }catch (DataIntegrityViolationException ex) {
+        } catch (DataIntegrityViolationException ex) {
             throw ExceptionUtils.buildSameIdentifierException(Constants.CATEGORY_DUPLICATED);
         }
     }
@@ -50,17 +49,17 @@ public class CategoryService {
         var dto = existentEntity;
         try {
             return repository.save(dto);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.CATEGORY_NOT_PERSISTED);
         }
     }
 
     @Transactional
     public void deleteByCode(String code) {
-        try{
+        try {
             var entity = findByCode(code);
             repository.delete(entity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.CATEGORY_DELETION_ERROR);
         }
     }

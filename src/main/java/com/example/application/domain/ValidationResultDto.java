@@ -11,12 +11,12 @@ public class ValidationResultDto {
 
     private boolean valid;
 
-    public void makeInvalid(String errorMessage){
+    public void makeInvalid(String errorMessage) {
         this.errorMessage = errorMessage;
         this.valid = false;
     }
 
-    public void makeValid(){
+    public void makeValid() {
         this.errorMessage = Strings.EMPTY;
         this.valid = true;
     }

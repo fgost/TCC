@@ -9,7 +9,6 @@ import com.example.application.backend.car.model.response.CarResponseCategory;
 import com.example.application.backend.car.service.CarService;
 import com.example.application.utils.dto.OnlyCodeDto;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Component
 public class CarFacade {
+
     private CarService carService;
 
     public List<CarResponse> findAll(String carModel, String year) {
@@ -27,7 +27,6 @@ public class CarFacade {
                 .map(CarResponseMapper.INSTANCE::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
-
 
     public CarResponse findByCode(String code) {
         var entity = carService.findByCode(code);

@@ -14,13 +14,12 @@ public enum CarAutoMakerEnum {
     private final short value;
 
 
-
     public static CarAutoMakerEnum fromValue(Short carAutoMakerCode) {
         var message = MessageResource.getInstance().getMessage("car.type.invalid");
         return Arrays.stream(CarAutoMakerEnum.values())
                 .filter(it -> Short.valueOf(it.getValue()).equals(carAutoMakerCode))
                 .findFirst()
-                .orElseThrow(() ->  ExceptionUtils.buildBadRequestException(message));
+                .orElseThrow(() -> ExceptionUtils.buildBadRequestException(message));
     }
 
     public short getValue() {

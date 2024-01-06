@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 @EnableWebSecurity
 @Component
-public class SecurityConfig  extends VaadinWebSecurity implements UserDetailsService {
+public class SecurityConfig extends VaadinWebSecurity implements UserDetailsService {
     private final UserRepository userRepository;
     private static final String LOGOUT_SUCCESS_URL = "/login";
 

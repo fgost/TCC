@@ -2,7 +2,6 @@ package com.example.application.backend.users;
 
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.dto.UserDtoUpdate;
-import com.example.application.backend.users.model.request.UserRequest;
 import com.example.application.backend.users.model.response.UserResponse;
 import com.example.application.backend.users.model.response.UserResponseCar;
 import com.example.application.backend.users.model.response.UserResponsePreference;

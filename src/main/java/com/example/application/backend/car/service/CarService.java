@@ -5,7 +5,6 @@ import com.example.application.backend.car.repository.CarRepository;
 import com.example.application.backend.category.domain.CategoryEntity;
 import com.example.application.backend.category.repository.CategoryRepository;
 import com.example.application.backend.category.service.CategoryService;
-import com.example.application.backend.users.repository.UserRepository;
 import com.example.application.backend.users.repository.UserRepositoryFront;
 import com.example.application.domain.Constants;
 import com.example.application.exception.domain.ObjectNotFoundException;
@@ -15,7 +14,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -88,7 +86,7 @@ public class CarService {
         existentEntity.setMileage(entity.getMileage());
         try {
             return carRepository.save(existentEntity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.CAR_NOT_PERSISTED);
         }
     }
@@ -110,10 +108,10 @@ public class CarService {
 
     @Transactional
     public void deleteByCode(String code) {
-        try{
+        try {
             var entity = findByCode(code);
             carRepository.delete(entity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.CAR_DELETION_ERROR);
         }
     }

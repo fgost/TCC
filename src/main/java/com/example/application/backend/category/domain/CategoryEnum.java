@@ -2,9 +2,11 @@ package com.example.application.backend.category.domain;
 
 import com.example.application.exception.util.ExceptionUtils;
 import com.example.application.exception.util.MessageResource;
+import lombok.Getter;
 
 import java.util.Arrays;
 
+@Getter
 public enum CategoryEnum {
 
     PREVENTIVE((short) 0),
@@ -21,10 +23,6 @@ public enum CategoryEnum {
                 .filter(it -> Short.valueOf(it.getValue()).equals(categoryCode))
                 .findFirst()
                 .orElseThrow(() -> ExceptionUtils.buildBadRequestException(message));
-    }
-
-    public short getValue() {
-        return value;
     }
 
     CategoryEnum(short value) {

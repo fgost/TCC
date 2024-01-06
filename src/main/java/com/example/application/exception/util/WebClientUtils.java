@@ -17,7 +17,7 @@ public class WebClientUtils {
         try {
             for (Field f : clazz.getDeclaredFields()) {
                 var fieldValue = f.get(obj);
-                if(fieldValue != null) {
+                if (fieldValue != null) {
                     queryParamsMap.put(f.getName(), String.valueOf(fieldValue));
                 }
             }

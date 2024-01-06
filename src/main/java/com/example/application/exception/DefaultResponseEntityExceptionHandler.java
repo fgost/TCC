@@ -66,13 +66,13 @@ public class DefaultResponseEntityExceptionHandler {
 
     @ExceptionHandler(WebExchangeBindException.class)
     public ResponseEntity<ExceptionResponse> handleWebExchangeBindException(WebExchangeBindException exception) {
-       log.error("HANDLING >> Web exchange method argument not valid exception", exception);
+        log.error("HANDLING >> Web exchange method argument not valid exception", exception);
 
-       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-               .contentType(MediaType.APPLICATION_JSON)
-               .body(new ExceptionResponse(HttpStatus.UNPROCESSABLE_ENTITY.toString(),
-                       getFieldErrorMessage(exception.getBindingResult().getFieldErrors()),
-                       exception.toString()));
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ExceptionResponse(HttpStatus.UNPROCESSABLE_ENTITY.toString(),
+                        getFieldErrorMessage(exception.getBindingResult().getFieldErrors()),
+                        exception.toString()));
     }
 
     @ExceptionHandler(BusinessException.class)

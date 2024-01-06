@@ -2,9 +2,11 @@ package com.example.application.backend.maintenancePart.domain;
 
 import com.example.application.exception.util.ExceptionUtils;
 import com.example.application.exception.util.MessageResource;
+import lombok.Getter;
 
 import java.util.Arrays;
 
+@Getter
 public enum MaintenancePartStatusEnum {
     NEW((short) 0),
     USED((short) 1),
@@ -25,8 +27,5 @@ public enum MaintenancePartStatusEnum {
         this.value = value;
     }
 
-    public short getValue() {
-        return value;
-    }
 }
 

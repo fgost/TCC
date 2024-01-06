@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CarRepository extends JpaRepository<CarEntity, Long> {
-    Optional<CarEntity> findByCarModel(String carModel);
 
     Optional<CarEntity> findByCode(String code);
 
@@ -20,4 +19,6 @@ public interface CarRepository extends JpaRepository<CarEntity, Long> {
     List<CarEntity> findByCarModelContainingIgnoreCase(String carModel);
 
     List<CarEntity> findByCarModelContainingIgnoreCaseOrYearContainingIgnoreCase(String carModel, String year);
+
+    CarEntity findByLicencePlate(String licencePlate);
 }

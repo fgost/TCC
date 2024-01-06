@@ -18,10 +18,8 @@ import java.util.List;
 public class TypeService {
     private TypeRepository repository;
 
-
-
     public List<TypeEntity> findAll(TypeEnum typeName) {
-            return repository.findAll();
+        return repository.findAll();
     }
 
     public TypeEntity findByCode(String code) {
@@ -34,7 +32,7 @@ public class TypeService {
     public TypeEntity insert(TypeEntity typeEntity) {
         try {
             return repository.save(typeEntity);
-        }catch (DataIntegrityViolationException ex) {
+        } catch (DataIntegrityViolationException ex) {
             throw ExceptionUtils.buildSameIdentifierException(Constants.TYPE_DUPLICATED);
         }
     }
@@ -48,17 +46,17 @@ public class TypeService {
         var dto = existentEntity;
         try {
             return repository.save(dto);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.TYPE_NOT_PERSISTED);
         }
     }
 
     @Transactional
     public void deleteByCode(String code) {
-        try{
+        try {
             var entity = findByCode(code);
             repository.delete(entity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.TYPE_DELETION_ERROR);
         }
     }

@@ -89,18 +89,20 @@ public class CreateCarView extends Composite<VerticalLayout> {
 
         TextField mileageField = new TextField("Mileage");
 
+        TextField motorField = new TextField("Motor");
+
+        TextField licencePlateField = new TextField("Licence Plate");
+
         Button saveButton = new Button("Save");
         Button cancelButton = new Button("Cancel");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 
-
         saveButton.addClickListener(event -> {
             if (modelField.isEmpty() || yearPicker.isEmpty() || autoMakerField.isEmpty() || colorField.isEmpty() ||
-                    typeField.isEmpty() || mileageField.isEmpty()) {
+                    typeField.isEmpty() || mileageField.isEmpty() || motorField.isEmpty() || licencePlateField.isEmpty()) {
                 Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
-            }
-            else {
+            } else {
                 CarEntity car = new CarEntity();
                 car.setCarModel(modelField.getValue());
                 car.setYear(String.valueOf(yearPicker.getValue()));
@@ -108,6 +110,8 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 car.setColor(colorField.getValue());
                 car.setType(typeField.getValue());
                 car.setMileage(Double.parseDouble(mileageField.getValue()));
+                car.setMotor(motorField.getValue());
+                car.setLicencePlate(licencePlateField.getValue());
 
                 this.carFacade.insert(car, this.securityConfig.getAuthenticatedUser());
 
@@ -124,10 +128,12 @@ public class CreateCarView extends Composite<VerticalLayout> {
             colorField.clear();
             typeField.clear();
             mileageField.clear();
+            motorField.clear();
+            licencePlateField.clear();
         });
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(modelField, yearPicker, autoMakerField, colorField, typeField, mileageField, saveButton, cancelButton);
+        formLayout.add(modelField, yearPicker, autoMakerField, colorField, typeField, mileageField, motorField, licencePlateField, saveButton, cancelButton);
         formLayout.setResponsiveSteps(
                 // Use one column by default
                 new FormLayout.ResponsiveStep("0", 1),

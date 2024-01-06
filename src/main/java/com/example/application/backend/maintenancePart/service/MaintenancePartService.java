@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 public class MaintenancePartService {
     private MaintenancePartRepository repository;
+
     public List<MaintenancePartEntity> findAll() {
         return repository.findAll();
     }
@@ -30,7 +31,7 @@ public class MaintenancePartService {
     public MaintenancePartEntity insert(MaintenancePartEntity entity) {
         try {
             return repository.save(entity);
-        }catch (DataIntegrityViolationException ex) {
+        } catch (DataIntegrityViolationException ex) {
             throw ExceptionUtils.buildSameIdentifierException(Constants.TYPE_DUPLICATED);
         }
     }
@@ -52,17 +53,17 @@ public class MaintenancePartService {
         var dto = existentEntity;
         try {
             return repository.save(dto);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.TYPE_NOT_PERSISTED);
         }
     }
 
     @Transactional
     public void deleteByCode(String code) {
-        try{
+        try {
             var entity = findByCode(code);
             repository.delete(entity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.TYPE_DELETION_ERROR);
         }
     }

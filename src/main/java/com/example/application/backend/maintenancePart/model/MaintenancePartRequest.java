@@ -4,8 +4,10 @@ import com.example.application.backend.maintenancePart.domain.MaintenancePartSta
 import com.example.application.backend.type.domain.TypeEnum;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class MaintenancePartRequest {
@@ -22,7 +24,7 @@ public class MaintenancePartRequest {
     @Size(max = 100, message = "{maintenance.part.serial.number.max.size}")
     private String serialNumber;
 
-   @NotBlank(message = "{maintenance.part.manufacturer.not.null}")
+    @NotBlank(message = "{maintenance.part.manufacturer.not.null}")
     @Size(max = 100, message = "{maintenance.part.manufacturer.max.size}")
     private String manufacturer;
 
@@ -47,80 +49,40 @@ public class MaintenancePartRequest {
     @NotNull(message = "{category.not.null}")
     private TypeEnum type;
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getSerialNumber() {
-        return serialNumber;
-    }
-
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    public String getManufacturer() {
-        return manufacturer;
     }
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
 
-    public String getModel() {
-        return model;
-    }
-
     public void setModel(String model) {
         this.model = model;
-    }
-
-    public String getInstallationDate() {
-        return installationDate;
     }
 
     public void setInstallationDate(String installationDate) {
         this.installationDate = installationDate;
     }
 
-    public int getLifeSpan() {
-        return lifeSpan;
-    }
-
     public void setLifeSpan(int lifeSpan) {
         this.lifeSpan = lifeSpan;
-    }
-
-    public double getCost() {
-        return cost;
     }
 
     public void setCost(double cost) {
         this.cost = cost;
     }
 
-    public MaintenancePartStatusEnum getStatus() {
-        return status;
-    }
-
     public void setStatus(MaintenancePartStatusEnum status) {
         this.status = status;
-    }
-
-    public TypeEnum getType() {
-        return type;
     }
 
     public void setType(TypeEnum type) {

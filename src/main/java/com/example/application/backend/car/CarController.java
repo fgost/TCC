@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -67,7 +66,7 @@ public class CarController {
 
     @PutMapping("/{id}/categories")
     public ResponseEntity<CarResponse> updateCategory(@PathVariable(name = "id") String code,
-                                                  @Valid @RequestBody Set<OnlyCodeDto> ids) {
+                                                      @Valid @RequestBody Set<OnlyCodeDto> ids) {
         var response = carFacade.updateCategory(code, ids);
         return ResponseEntity.ok(response);
     }

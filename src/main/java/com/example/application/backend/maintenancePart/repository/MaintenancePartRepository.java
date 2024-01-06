@@ -1,6 +1,7 @@
 package com.example.application.backend.maintenancePart.repository;
 
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
+import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,5 @@ public interface MaintenancePartRepository extends JpaRepository<MaintenancePart
 
     List<MaintenancePartEntity> findByCar(Long car);
 
+    List<MaintenancePartEntity> findByCarAndStatus(Long car, MaintenancePartStatusEnum status);
 }

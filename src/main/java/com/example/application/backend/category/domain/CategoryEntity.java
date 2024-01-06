@@ -2,10 +2,12 @@ package com.example.application.backend.category.domain;
 
 import com.example.application.backend.type.domain.TypeEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 @Entity
 @Table(name = "categories")
 public class CategoryEntity {
@@ -29,32 +31,16 @@ public class CategoryEntity {
         this.code = UUID.randomUUID().toString();
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getCode() {
-        return code;
     }
 
     public void setCode(String code) {
         this.code = code;
     }
 
-    public CategoryEnum getCategory() {
-        return category;
-    }
-
     public void setCategory(CategoryEnum category) {
         this.category = category;
-    }
-
-    public List<TypeEntity> getTypes() {
-        return types;
     }
 
     public void setTypes(List<TypeEntity> types) {

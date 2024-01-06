@@ -7,7 +7,6 @@ import com.example.application.backend.category.model.request.CategoryRequest;
 import com.example.application.backend.category.model.response.CategoryResponse;
 import com.example.application.backend.category.model.response.CategoryResponseType;
 import com.example.application.backend.category.service.CategoryService;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

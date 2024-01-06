@@ -6,20 +6,17 @@ import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.domain.CarTypeEnum;
 import com.example.application.backend.car.repository.CarRepository;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
+import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
 import com.example.application.backend.maintenancePart.repository.MaintenancePartRepository;
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.repository.UserRepositoryFront;
 import com.example.application.config.security.SecurityConfig;
 import com.example.application.views.MainLayout;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -32,16 +29,13 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @PageTitle("Main")
 @Route(value = "", layout = MainLayout.class)
 @PermitAll
 public class MainView extends VerticalLayout {
-
 
     private final Grid<MaintenancePartEntity> partsGrid = new Grid<>(MaintenancePartEntity.class);
     private final Grid<CarEntity> carsGrid = new Grid<>(CarEntity.class);
@@ -50,6 +44,8 @@ public class MainView extends VerticalLayout {
     private final SecurityConfig securityConfig;
     private final UserRepositoryFront userRepositoryFront;
     private final AutoMakerRepository autoMakerRepository;
+
+    private CarEntity selectedCar;
 
     public MainView(MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront, AutoMakerRepository autoMakerRepository) {
         this.maintenancePartRepository = maintenancePartRepository;
@@ -64,47 +60,148 @@ public class MainView extends VerticalLayout {
         // Configurar a grid de peças
         partsGrid.removeAllColumns();
         partsGrid.addColumn(MaintenancePartEntity::getName).setHeader("Name");
-        partsGrid.addColumn(MaintenancePartEntity::getStatus).setHeader("Status");
+        partsGrid.addColumn(maintenancePart -> "CRÍTICO")
+                .setHeader("Status");
+        partsGrid.addComponentColumn(maintenancePart -> {
+            Map<String, Double> averageCostByPartName = calculateAverageCostByPartName(loadAllMaintenanceParts());
+            return new Text(String.valueOf(averageCostByPartName.getOrDefault(maintenancePart.getName(), 0.0)));
+        }).setHeader("Average Cost");
 
-        // Configurar a grid de carros
+        // Crie uma caixa de seleção para os licencePlate
+        ComboBox<String> licencePlateComboBox = new ComboBox<>("Select By Licence Plate");
+        licencePlateComboBox.setItemLabelGenerator(licencePlate -> licencePlate);
+        List<String> licencePlates = locateLicencePlates();
+        licencePlateComboBox.setItems(licencePlates);
+        licencePlateComboBox.setValue(licencePlates.get(0)); // Seleciona o primeiro como padrão
+
+        // Adicione um listener para a caixa de seleção de licencePlate
+        licencePlateComboBox.addValueChangeListener(event -> {
+            String selectedLicencePlate = event.getValue();
+            if (selectedLicencePlate != null) {
+                loadMaintenancePartsForLicencePlate(selectedLicencePlate);
+            }
+        });
+
+        // Carregue as Maintenance Parts para a primeira licencePlate, já que é o padrão
+        if (!licencePlates.isEmpty()) {
+            loadMaintenancePartsForLicencePlate(licencePlates.get(0));
+        }
+
+        // Remova a configuração da coluna de modelo de carro da grid
         carsGrid.removeAllColumns();
-        carsGrid.addColumn(CarEntity::getCarModel).setHeader("Car Model").setWidth("40%");
 
-        carsGrid.addComponentColumn(carEntity -> {
-            Button deleteButton = new Button("Delete");
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            deleteButton.addClickListener(event -> showConfirmationDialog(carEntity));
+        // Crie um layout horizontal para a caixa de seleção de carros
+        HorizontalLayout carsLayout = new HorizontalLayout();
+        carsLayout.setWidthFull(); // Define a largura total do layout
 
-            Button editButton = new Button("Edit");
-            editButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            editButton.addClickListener(event -> showEditCarDialog(carEntity));
+        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
 
-            HorizontalLayout actionsLayout = new HorizontalLayout(deleteButton, editButton);
-            actionsLayout.setSpacing(true); // Adiciona espaço entre os botões
-
-            return actionsLayout;
-        }).setHeader("Actions").setWidth("60%");
+        // Ordena a lista de carros por nome
+        cars.sort(Comparator.comparing(CarEntity::getCarModel));
 
 
-        carsGrid.asSingleSelect().addValueChangeListener(event -> {
+        // Se houver mais de 1 carro, adicione uma caixa de seleção
+
+        ComboBox<CarEntity> carSelectionComboBox = new ComboBox<>("Select by Model");
+        carSelectionComboBox.setItemLabelGenerator(CarEntity::getCarModel);
+        carSelectionComboBox.setItems(cars);
+
+        // Seleciona o primeiro da lista como padrão
+        carSelectionComboBox.setValue(cars.get(0));
+
+        carSelectionComboBox.addValueChangeListener(event -> {
             CarEntity selectedCar = event.getValue();
             if (selectedCar != null) {
                 loadMaintenancePartsForCar(selectedCar);
             }
         });
 
-        // Adicionar as grids ao layout
-        add(new H3("Maintenance Parts"), partsGrid, new H3("Cars"), carsGrid);
+        carsLayout.add(carSelectionComboBox);
+        carsLayout.add(licencePlateComboBox);
+
+        // Carregue as Maintenance Parts para o carro padrão
+        loadMaintenancePartsForCar(cars.get(0));
+
+        // Adicione o layout horizontal de carros ao layout vertical principal
+        add(carsLayout, new H3("Maintenance Parts"), partsGrid);
+
+        carsGrid.asSingleSelect().addValueChangeListener(event -> {
+            selectedCar = event.getValue();
+            if (selectedCar != null) {
+                carSelectionComboBox.setValue(selectedCar);
+                licencePlateComboBox.setValue(selectedCar.getLicencePlate());
+                loadMaintenancePartsForCar(selectedCar);
+            }
+        });
 
         // Carregar dados
-        loadPartsData();
         loadCarsData();
         askForUpdateMileageCars();
+    }
 
+    private List<MaintenancePartEntity> loadAllMaintenanceParts() {
+        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
+        List<MaintenancePartEntity> allMaintenanceParts = new ArrayList<>();
 
+        for (CarEntity car : cars) {
+            allMaintenanceParts.addAll(maintenancePartRepository.findByCar(car.getId()));
+        }
 
+        return allMaintenanceParts;
+    }
+
+    private Map<String, Double> calculateAverageCostByPartName(List<MaintenancePartEntity> maintenanceParts) {
+        if (maintenanceParts.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, List<MaintenancePartEntity>> partsByName = maintenanceParts.stream()
+                .collect(Collectors.groupingBy(MaintenancePartEntity::getName));
+
+        return partsByName.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> calculateAverageCost(entry.getValue())
+                ));
+    }
+
+    private Double calculateAverageCost(List<MaintenancePartEntity> maintenanceParts) {
+        if (maintenanceParts.isEmpty()) {
+            return 0.0;
+        }
+
+        double totalCost = maintenanceParts.stream()
+                .mapToDouble(MaintenancePartEntity::getCost)
+                .sum();
+
+        return totalCost / maintenanceParts.size();
+    }
+
+    private void loadMaintenancePartsForLicencePlate(String licencePlate) {
+        // Implemente a lógica para carregar Maintenance Parts com base na licencePlate
+        CarEntity carEntity = carRepository.findByLicencePlate(licencePlate);
+        selectedCar = carEntity; // Armazena a referência ao carro atualmente selecionado
+        List<MaintenancePartEntity> maintenanceParts = loadMaintenancePartsForCar(carEntity);
+        partsGrid.setItems(maintenanceParts);
+
+        // Seleciona o carro correspondente na grade de carros
+        carsGrid.asSingleSelect().setValue(carEntity);
+    }
+
+    private List<MaintenancePartEntity> loadMaintenancePartsForCar(CarEntity carEntity) {
+        selectedCar = carEntity;
+        List<MaintenancePartEntity> maintenanceParts = maintenancePartRepository.findByCarAndStatus(carEntity.getId(), MaintenancePartStatusEnum.URGENT_REPLACEMENT);
+        partsGrid.setItems(maintenanceParts);
+        carsGrid.asSingleSelect().setValue(carEntity);
+        return maintenanceParts;
+    }
+
+    private List<String> locateLicencePlates() {
+        // Implemente a lógica para obter a lista de licencePlates
+        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
+
+        return cars.stream().map(CarEntity::getLicencePlate).sorted()  // Ordena as licencePlates em ordem alfabética
+                .collect(Collectors.toList());
     }
 
     private void askForUpdateMileageCars() {
@@ -112,8 +209,10 @@ public class MainView extends VerticalLayout {
         var lastUpdateMileage = currentUser.getLastUpdateMileage();
         var differenceLastUpdate = System.currentTimeMillis() - lastUpdateMileage;
         var lastAskForUpdate = currentUser.getLastAskForUpdateMileage();
-        var differenceLastAskUpdate = currentUser.getLastAskForUpdateMileage() - lastAskForUpdate;
-        if (carsGrid.getDataProvider().size(new Query<>()) > 0 && differenceLastUpdate > (7 * 24 * 60 * 60 * 1000) && differenceLastAskUpdate > (24 * 60 * 60 * 1000)) {
+        var differenceLastAskUpdate = lastAskForUpdate - lastUpdateMileage;
+        if (carsGrid.getDataProvider().size(new Query<>()) > 0
+                && differenceLastUpdate > (7 * 24 * 60 * 60 * 1000)
+                && differenceLastAskUpdate > (24 * 60 * 60 * 1000)) {
             showMessageToUpdateTheMileageCars();
         }
     }
@@ -130,12 +229,10 @@ public class MainView extends VerticalLayout {
                     updateMileageCars();
                     dialog.close();
 
-                }),
-                new Button("Cancel", event -> {
-                    registerNonUpdateMileage();
-                    dialog.close();
-                })
-        );
+                }), new Button("Cancel", event -> {
+            registerNonUpdateMileage();
+            dialog.close();
+        }));
         layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         dialog.add(layout);
@@ -143,8 +240,8 @@ public class MainView extends VerticalLayout {
     }
 
     private void updateMileageCars() {
-        var carEntity = locateCars();
-        for (CarEntity cars: carEntity) {
+        var carEntity = carRepository.findByUsuario(getAuthenticatedUser().getId());
+        for (CarEntity cars : carEntity) {
             Dialog dialog = new Dialog();
             dialog.setModal(true);
 
@@ -163,24 +260,20 @@ public class MainView extends VerticalLayout {
     }
 
     private VerticalLayout getVerticalLayout(CarEntity cars, TextField carMileageField, TextField carNameField, Dialog dialog) {
-        VerticalLayout layout = new VerticalLayout(
-                carNameField, carMileageField,
-                new Button("Save", event -> {
-                    CarEntity editedCar = new CarEntity();
-                    editedCar.setMileage(Double.parseDouble(carMileageField.getValue()));
-                    editedCar.setCarModel(cars.getCarModel());
-                    editedCar.setYear(cars.getYear());
-                    editedCar.setAutoMaker(cars.getAutoMaker());
-                    editedCar.setColor(cars.getColor());
-                    editedCar.setType(cars.getType());
-                    handleEditCar(cars, editedCar);
-                    dialog.close();
-                }),
-                new Button("Cancel", event -> {
-                    dialog.close();
-                    registerNonUpdateMileage();
-                })
-        );
+        VerticalLayout layout = new VerticalLayout(carNameField, carMileageField, new Button("Save", event -> {
+            CarEntity editedCar = new CarEntity();
+            editedCar.setMileage(Double.parseDouble(carMileageField.getValue()));
+            editedCar.setCarModel(cars.getCarModel());
+            editedCar.setYear(cars.getYear());
+            editedCar.setAutoMaker(cars.getAutoMaker());
+            editedCar.setColor(cars.getColor());
+            editedCar.setType(cars.getType());
+            handleEditCar(cars, editedCar);
+            dialog.close();
+        }), new Button("Cancel", event -> {
+            dialog.close();
+            registerNonUpdateMileage();
+        }));
         layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         return layout;
     }
@@ -189,30 +282,9 @@ public class MainView extends VerticalLayout {
         updateLastAskForUpdateMileage();
     }
 
-    private void loadPartsData() {
-        List<CarEntity> cars = locateCars();
-        List<MaintenancePartEntity> allMaintenanceParts = new ArrayList<>();
-
-        for (CarEntity car : cars) {
-            List<MaintenancePartEntity> maintenancePartsForCar = maintenancePartRepository.findByCar(car.getId());
-            allMaintenanceParts.addAll(maintenancePartsForCar);
-        }
-
-        partsGrid.setItems(allMaintenanceParts);
-    }
-
     private void loadCarsData() {
-        List<CarEntity> cars = locateCars();
+        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
         carsGrid.setItems(cars);
-    }
-
-    private void loadMaintenancePartsForCar(CarEntity carEntity) {
-        List<MaintenancePartEntity> maintenanceParts = maintenancePartRepository.findByCar(carEntity.getId());
-        partsGrid.setItems(maintenanceParts);
-    }
-
-    private List<CarEntity> locateCars() {
-        return carRepository.findByUsuario(getAuthenticatedUser().getId());
     }
 
     private UserEntity getAuthenticatedUser() {
@@ -224,14 +296,10 @@ public class MainView extends VerticalLayout {
         Dialog dialog = new Dialog();
         dialog.setModal(true);
 
-        VerticalLayout layout = new VerticalLayout(
-                new Text("Do you really want to delete this car?"),
-                new Button("Yes", event -> {
-                    handleDeleteCar(carEntity);
-                    dialog.close();
-                }),
-                new Button("Cancel", event -> dialog.close())
-        );
+        VerticalLayout layout = new VerticalLayout(new Text("Do you really want to delete this car?"), new Button("Yes", event -> {
+            handleDeleteCar(carEntity);
+            dialog.close();
+        }), new Button("Cancel", event -> dialog.close()));
         layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         dialog.add(layout);
@@ -276,22 +344,17 @@ public class MainView extends VerticalLayout {
         });
         carTypeField.setValue(carEntity.getType());
 
-
-        VerticalLayout layout = new VerticalLayout(
-                carModelField, carYearField, carAutoMakerField, carColorField, carTypeField, carMileageField,
-                new Button("Save", event -> {
-                    CarEntity editedCar = new CarEntity();
-                    editedCar.setCarModel(carModelField.getValue());
-                    editedCar.setYear(carYearField.getValue());
-                    editedCar.setAutoMaker(carAutoMakerField.getValue().getName());
-                    editedCar.setColor(carColorField.getValue());
-                    editedCar.setType(carTypeField.getValue());
-                    editedCar.setMileage(Double.parseDouble(carMileageField.getValue()));
-                    handleEditCar(carEntity, editedCar);
-                    dialog.close();
-                }),
-                new Button("Cancel", event -> dialog.close())
-        );
+        VerticalLayout layout = new VerticalLayout(carModelField, carYearField, carAutoMakerField, carColorField, carTypeField, carMileageField, new Button("Save", event -> {
+            CarEntity editedCar = new CarEntity();
+            editedCar.setCarModel(carModelField.getValue());
+            editedCar.setYear(carYearField.getValue());
+            editedCar.setAutoMaker(carAutoMakerField.getValue().getName());
+            editedCar.setColor(carColorField.getValue());
+            editedCar.setType(carTypeField.getValue());
+            editedCar.setMileage(Double.parseDouble(carMileageField.getValue()));
+            handleEditCar(carEntity, editedCar);
+            dialog.close();
+        }), new Button("Cancel", event -> dialog.close()));
         layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         dialog.add(layout);
@@ -310,6 +373,7 @@ public class MainView extends VerticalLayout {
         updateLastUpdateMileage();
         loadCarsData();
     }
+
     private void updateLastUpdateMileage() {
         var currentUser = securityConfig.getAuthenticatedUser();
         var user = userRepositoryFront.findByEmail(currentUser);
@@ -320,6 +384,7 @@ public class MainView extends VerticalLayout {
         user.setLastUpdateMileage(System.currentTimeMillis());
         userRepositoryFront.save(user);
     }
+
     private void updateLastAskForUpdateMileage() {
         var currentUser = securityConfig.getAuthenticatedUser();
         var user = userRepositoryFront.findByEmail(currentUser);

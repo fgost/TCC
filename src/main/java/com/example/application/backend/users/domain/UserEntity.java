@@ -2,6 +2,7 @@ package com.example.application.backend.users.domain;
 
 import com.example.application.backend.car.domain.CarEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,6 +10,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 
+
+@Getter
 @Entity
 @Table(name = "users")
 public class UserEntity implements UserDetails, Serializable {
@@ -43,7 +46,6 @@ public class UserEntity implements UserDetails, Serializable {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "users_preferences", joinColumns = @JoinColumn(name = "user_id"))
     private Set<Preference> preferences = new HashSet<>();
-
 
     @ManyToMany
     @JoinTable(
@@ -104,54 +106,30 @@ public class UserEntity implements UserDetails, Serializable {
 
     public Map<String, String> getPreferencesAsMap() {
         Map<String, String> map = new HashMap<>();
-        preferences.forEach(p -> {
-            map.put(p.getPreferenceKey(), p.getPreferenceValue());
-        });
+        preferences.forEach(p -> map.put(p.getPreferenceKey(), p.getPreferenceValue()));
         return map;
     }
 
-    public Map<String, String> getCarAsMap(){
+    public Map<String, String> getCarAsMap() {
         Map<String, String> map = new HashMap<>();
-        cars.forEach(p -> {
-            map.put(p.getCarModel(),p.getYear());
-        });
+        cars.forEach(p -> map.put(p.getCarModel(), p.getYear()));
         return map;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
-    }
-
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     public void setEmail(String email) {
@@ -162,32 +140,16 @@ public class UserEntity implements UserDetails, Serializable {
         this.password = password;
     }
 
-    public Set<Preference> getPreferences() {
-        return preferences;
-    }
-
     public void setPreferences(Set<Preference> preferences) {
         this.preferences = preferences;
-    }
-
-    public List<CarEntity> getCars() {
-        return cars;
     }
 
     public void setCars(List<CarEntity> cars) {
         this.cars = cars;
     }
 
-    public long getLastUpdateMileage() {
-        return lastUpdateMileage;
-    }
-
     public void setLastUpdateMileage(long lastUpdateMileage) {
         this.lastUpdateMileage = lastUpdateMileage;
-    }
-
-    public long getLastAskForUpdateMileage() {
-        return lastAskForUpdateMileage;
     }
 
     public void setLastAskForUpdateMileage(long lastAskForUpdateMileage) {

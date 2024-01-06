@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS cars (
     auto_maker character varying(100) NOT NULL,
     year character varying(100) NOT NULL,
     color character varying(100) NOT NULL,
+    licence_plate character varying(100) NOT NULL,
+    motor character varying(100) NOT NULL,
     type smallint NOT NULL,
     mileage double precision NOT NULL,
     usuario smallint NOT NULL,
