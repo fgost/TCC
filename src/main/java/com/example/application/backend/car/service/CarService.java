@@ -49,9 +49,16 @@ public class CarService {
     }
 
     public CarEntity findByCode(String code) {
-        var entity = carRepository.findByCode(code)
+        return carRepository.findByCode(code)
                 .orElseThrow(() -> new ObjectNotFoundException(Constants.CAR_NOT_FOUND));
-        return entity;
+    }
+
+    public CarEntity findByLicensePlate(String licensePlate) {
+        return carRepository.findByLicencePlate(licensePlate);
+    }
+
+    public List<CarEntity> findByUser(long id) {
+        return carRepository.findByUsuario(id);
     }
 
     @Transactional
@@ -77,13 +84,14 @@ public class CarService {
     @Transactional
     public CarEntity update(String code, CarEntity entity) {
         var existentEntity = findByCode(code);
-        existentEntity.setCode(code);
         existentEntity.setCarModel(entity.getCarModel());
         existentEntity.setType(entity.getType());
         existentEntity.setColor(entity.getColor());
         existentEntity.setAutoMaker(entity.getAutoMaker());
         existentEntity.setYear(entity.getYear());
         existentEntity.setMileage(entity.getMileage());
+        existentEntity.setMotor(entity.getMotor());
+        existentEntity.setLicencePlate(entity.getLicencePlate());
         try {
             return carRepository.save(existentEntity);
         } catch (Exception e) {
@@ -115,4 +123,6 @@ public class CarService {
             throw ExceptionUtils.buildNotPersistedException(Constants.CAR_DELETION_ERROR);
         }
     }
+
+
 }

@@ -1,4 +1,4 @@
-package com.example.application.views.newUserForm.view;
+package com.example.application.views.newUserForm;
 
 import com.example.application.backend.users.UserFacade;
 import com.example.application.backend.users.domain.UserEntity;

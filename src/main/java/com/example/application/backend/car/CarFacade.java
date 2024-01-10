@@ -30,33 +30,32 @@ public class CarFacade {
 
     public CarResponse findByCode(String code) {
         var entity = carService.findByCode(code);
-        var dto = CarResponseMapper.INSTANCE.mapEntityToCarResponse(entity);
-        return dto;
+        return CarResponseMapper.INSTANCE.mapEntityToCarResponse(entity);
+    }
+
+    public CarEntity findByLicensePlate(String licensePlate) {
+        return carService.findByLicensePlate(licensePlate);
     }
 
     public CarResponseCategory getCategories(String code) {
         var entity = carService.findByCode(code);
-        var dto = CarResponseMapper.INSTANCE.mapEntityToCategory(entity);
-        return dto;
+        return CarResponseMapper.INSTANCE.mapEntityToCategory(entity);
     }
 
     public CarResponse insert(CarEntity input, String user) {
         var savedEntity = carService.insert(input, user);
-        var dto = CarResponseMapper.INSTANCE.mapEntityToResponse(savedEntity);
-        return dto;
+        return CarResponseMapper.INSTANCE.mapEntityToResponse(savedEntity);
     }
 
     public CarResponse update(String code, CarRequest request) {
         var entity = CarRequestMapper.INSTANCE.mapModelToEntity(request);
         var savedEntity = carService.update(code, entity);
-        var dto = CarResponseMapper.INSTANCE.mapEntityToResponse(savedEntity);
-        return dto;
+        return CarResponseMapper.INSTANCE.mapEntityToResponse(savedEntity);
     }
 
     public CarResponse updateCategory(String code, Set<OnlyCodeDto> inputList) {
         var entity = carService.updateCategory(code, inputList);
-        var dto = CarResponseMapper.INSTANCE.mapEntityToCarResponse(entity);
-        return dto;
+        return CarResponseMapper.INSTANCE.mapEntityToCarResponse(entity);
     }
 
     public void deleteByCode(String code) {

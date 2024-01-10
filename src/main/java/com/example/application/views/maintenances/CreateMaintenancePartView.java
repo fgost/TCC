@@ -1,4 +1,4 @@
-package com.example.application.views.createMaintenancePart;
+package com.example.application.views.maintenances;
 
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.repository.CarRepository;

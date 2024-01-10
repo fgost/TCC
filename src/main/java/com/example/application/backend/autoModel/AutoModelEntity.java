@@ -1,4 +1,4 @@
-package com.example.application.backend.autoMaker;
+package com.example.application.backend.autoModel;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,15 +13,17 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "auto_maker")
-public class AutoMakerEntity implements Serializable {
+@Table(name = "auto_model")
+public class AutoModelEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String code;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String autoMaker;
+    private String code;
+    private String autoModel;
+    private long autoMaker;
 
     @PrePersist
     private void setCode() {
@@ -36,7 +38,8 @@ public class AutoMakerEntity implements Serializable {
         this.id = id;
     }
 
-    public void setAutoMaker(String autoMaker) {
-        this.autoMaker = autoMaker;
+    public void setAutoModel(String autoModel) {
+        this.autoModel = autoModel;
     }
+
 }

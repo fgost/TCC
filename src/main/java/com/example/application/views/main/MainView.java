@@ -1,9 +1,6 @@
 package com.example.application.views.main;
 
-import com.example.application.backend.autoMaker.AutoMakerEntity;
-import com.example.application.backend.autoMaker.AutoMakerRepository;
 import com.example.application.backend.car.domain.CarEntity;
-import com.example.application.backend.car.domain.CarTypeEnum;
 import com.example.application.backend.car.repository.CarRepository;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
@@ -22,8 +19,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -43,38 +38,36 @@ public class MainView extends VerticalLayout {
     private final CarRepository carRepository;
     private final SecurityConfig securityConfig;
     private final UserRepositoryFront userRepositoryFront;
-    private final AutoMakerRepository autoMakerRepository;
 
     private CarEntity selectedCar;
 
-    public MainView(MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront, AutoMakerRepository autoMakerRepository) {
+    public MainView(MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront) {
         this.maintenancePartRepository = maintenancePartRepository;
         this.carRepository = carRepository;
         this.securityConfig = securityConfig;
         this.userRepositoryFront = userRepositoryFront;
-        this.autoMakerRepository = autoMakerRepository;
 
         addClassName("list-view");
         setSizeFull();
 
-        // Configurar a grid de peças
         partsGrid.removeAllColumns();
         partsGrid.addColumn(MaintenancePartEntity::getName).setHeader("Name");
-        partsGrid.addColumn(maintenancePart -> "CRÍTICO")
+        partsGrid.addColumn(maintenancePart -> "CRITICAL")
                 .setHeader("Status");
         partsGrid.addComponentColumn(maintenancePart -> {
             Map<String, Double> averageCostByPartName = calculateAverageCostByPartName(loadAllMaintenanceParts());
             return new Text(String.valueOf(averageCostByPartName.getOrDefault(maintenancePart.getName(), 0.0)));
         }).setHeader("Average Cost");
 
-        // Crie uma caixa de seleção para os licencePlate
+        List<String> licencePlates = locateLicencePlates();
         ComboBox<String> licencePlateComboBox = new ComboBox<>("Select By Licence Plate");
         licencePlateComboBox.setItemLabelGenerator(licencePlate -> licencePlate);
-        List<String> licencePlates = locateLicencePlates();
-        licencePlateComboBox.setItems(licencePlates);
-        licencePlateComboBox.setValue(licencePlates.get(0)); // Seleciona o primeiro como padrão
 
-        // Adicione um listener para a caixa de seleção de licencePlate
+        licencePlateComboBox.setItems(licencePlates);
+        if(!licencePlates.isEmpty()) {
+            licencePlateComboBox.setValue(licencePlates.get(0));
+        }
+
         licencePlateComboBox.addValueChangeListener(event -> {
             String selectedLicencePlate = event.getValue();
             if (selectedLicencePlate != null) {
@@ -82,32 +75,26 @@ public class MainView extends VerticalLayout {
             }
         });
 
-        // Carregue as Maintenance Parts para a primeira licencePlate, já que é o padrão
         if (!licencePlates.isEmpty()) {
             loadMaintenancePartsForLicencePlate(licencePlates.get(0));
         }
 
-        // Remova a configuração da coluna de modelo de carro da grid
         carsGrid.removeAllColumns();
 
-        // Crie um layout horizontal para a caixa de seleção de carros
         HorizontalLayout carsLayout = new HorizontalLayout();
-        carsLayout.setWidthFull(); // Define a largura total do layout
+        carsLayout.setWidthFull();
 
         List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
 
-        // Ordena a lista de carros por nome
         cars.sort(Comparator.comparing(CarEntity::getCarModel));
-
-
-        // Se houver mais de 1 carro, adicione uma caixa de seleção
 
         ComboBox<CarEntity> carSelectionComboBox = new ComboBox<>("Select by Model");
         carSelectionComboBox.setItemLabelGenerator(CarEntity::getCarModel);
         carSelectionComboBox.setItems(cars);
 
-        // Seleciona o primeiro da lista como padrão
-        carSelectionComboBox.setValue(cars.get(0));
+        if(!cars.isEmpty()) {
+            carSelectionComboBox.setValue(cars.get(0));
+        }
 
         carSelectionComboBox.addValueChangeListener(event -> {
             CarEntity selectedCar = event.getValue();
@@ -119,10 +106,10 @@ public class MainView extends VerticalLayout {
         carsLayout.add(carSelectionComboBox);
         carsLayout.add(licencePlateComboBox);
 
-        // Carregue as Maintenance Parts para o carro padrão
-        loadMaintenancePartsForCar(cars.get(0));
+        if(!cars.isEmpty()) {
+            loadMaintenancePartsForCar(cars.get(0));
+        }
 
-        // Adicione o layout horizontal de carros ao layout vertical principal
         add(carsLayout, new H3("Maintenance Parts"), partsGrid);
 
         carsGrid.asSingleSelect().addValueChangeListener(event -> {
@@ -134,7 +121,6 @@ public class MainView extends VerticalLayout {
             }
         });
 
-        // Carregar dados
         loadCarsData();
         askForUpdateMileageCars();
     }
@@ -178,13 +164,11 @@ public class MainView extends VerticalLayout {
     }
 
     private void loadMaintenancePartsForLicencePlate(String licencePlate) {
-        // Implemente a lógica para carregar Maintenance Parts com base na licencePlate
         CarEntity carEntity = carRepository.findByLicencePlate(licencePlate);
-        selectedCar = carEntity; // Armazena a referência ao carro atualmente selecionado
+        selectedCar = carEntity;
         List<MaintenancePartEntity> maintenanceParts = loadMaintenancePartsForCar(carEntity);
         partsGrid.setItems(maintenanceParts);
 
-        // Seleciona o carro correspondente na grade de carros
         carsGrid.asSingleSelect().setValue(carEntity);
     }
 
@@ -197,10 +181,9 @@ public class MainView extends VerticalLayout {
     }
 
     private List<String> locateLicencePlates() {
-        // Implemente a lógica para obter a lista de licencePlates
         List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
 
-        return cars.stream().map(CarEntity::getLicencePlate).sorted()  // Ordena as licencePlates em ordem alfabética
+        return cars.stream().map(CarEntity::getLicencePlate).sorted()
                 .collect(Collectors.toList());
     }
 
@@ -218,7 +201,6 @@ public class MainView extends VerticalLayout {
     }
 
     private void showMessageToUpdateTheMileageCars() {
-        // Seu código para exibir o diálogo
         Dialog dialog = new Dialog();
         dialog.setModal(true);
         dialog.setHeaderTitle("Updating your car's mileage enhances your experience.");
@@ -268,7 +250,6 @@ public class MainView extends VerticalLayout {
             editedCar.setAutoMaker(cars.getAutoMaker());
             editedCar.setColor(cars.getColor());
             editedCar.setType(cars.getType());
-            handleEditCar(cars, editedCar);
             dialog.close();
         }), new Button("Cancel", event -> {
             dialog.close();
@@ -290,99 +271,6 @@ public class MainView extends VerticalLayout {
     private UserEntity getAuthenticatedUser() {
         var user = this.securityConfig.getAuthenticatedUser();
         return userRepositoryFront.findByEmail(user);
-    }
-
-    private void showConfirmationDialog(CarEntity carEntity) {
-        Dialog dialog = new Dialog();
-        dialog.setModal(true);
-
-        VerticalLayout layout = new VerticalLayout(new Text("Do you really want to delete this car?"), new Button("Yes", event -> {
-            handleDeleteCar(carEntity);
-            dialog.close();
-        }), new Button("Cancel", event -> dialog.close()));
-        layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
-
-        dialog.add(layout);
-        dialog.open();
-    }
-
-    private void handleDeleteCar(CarEntity carEntity) {
-        carRepository.delete(carEntity);
-        loadCarsData();
-    }
-
-    private void showEditCarDialog(CarEntity carEntity) {
-        Dialog dialog = new Dialog();
-        dialog.setModal(true);
-
-        // Adicione os campos de edição necessários, como TextField, ComboBox, etc.
-        TextField carModelField = new TextField("Model");
-        carModelField.setValue(carEntity.getCarModel());
-
-        TextField carYearField = new TextField("Year");
-        carYearField.setValue(carEntity.getYear());
-
-        TextField carColorField = new TextField("Color");
-        carColorField.setValue(carEntity.getColor());
-
-        TextField carMileageField = new TextField("Mileage");
-        carMileageField.setValue(String.valueOf(carEntity.getMileage()));
-
-        var autoMaker = autoMakerRepository.findByName(carEntity.getAutoMaker());
-        ComboBox<AutoMakerEntity> carAutoMakerField = new ComboBox<>("Auto Maker");
-        carAutoMakerField.setItemLabelGenerator(AutoMakerEntity::getName);
-        ListDataProvider<AutoMakerEntity> dataProvider = DataProvider.ofCollection(autoMakerRepository.findAll());
-        carAutoMakerField.setItems(dataProvider.getItems());
-        carAutoMakerField.setValue(autoMaker);
-
-        ComboBox<CarTypeEnum> carTypeField = new ComboBox<>("Type", Arrays.asList(CarTypeEnum.values()));
-        carTypeField.setItemLabelGenerator(item -> {
-            if (Objects.requireNonNull(item) == CarTypeEnum.PICKUP_TRUCK) {
-                return "PICKUP/TRUCK";
-            }
-            return item.toString();
-        });
-        carTypeField.setValue(carEntity.getType());
-
-        VerticalLayout layout = new VerticalLayout(carModelField, carYearField, carAutoMakerField, carColorField, carTypeField, carMileageField, new Button("Save", event -> {
-            CarEntity editedCar = new CarEntity();
-            editedCar.setCarModel(carModelField.getValue());
-            editedCar.setYear(carYearField.getValue());
-            editedCar.setAutoMaker(carAutoMakerField.getValue().getName());
-            editedCar.setColor(carColorField.getValue());
-            editedCar.setType(carTypeField.getValue());
-            editedCar.setMileage(Double.parseDouble(carMileageField.getValue()));
-            handleEditCar(carEntity, editedCar);
-            dialog.close();
-        }), new Button("Cancel", event -> dialog.close()));
-        layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
-
-        dialog.add(layout);
-        dialog.open();
-    }
-
-    private void handleEditCar(CarEntity carEntity, CarEntity editedCar) {
-        // Implemente a lógica para editar o carro
-        carEntity.setCarModel(editedCar.getCarModel());
-        carEntity.setYear(editedCar.getYear());
-        carEntity.setAutoMaker(editedCar.getAutoMaker());
-        carEntity.setColor(editedCar.getColor());
-        carEntity.setType(editedCar.getType());
-        carEntity.setMileage(editedCar.getMileage());
-        carRepository.save(carEntity);
-        updateLastUpdateMileage();
-        loadCarsData();
-    }
-
-    private void updateLastUpdateMileage() {
-        var currentUser = securityConfig.getAuthenticatedUser();
-        var user = userRepositoryFront.findByEmail(currentUser);
-        user.setName(user.getName());
-        user.setLastName(user.getLastName());
-        user.setEmail(user.getEmail());
-        user.setPassword(user.getPassword());
-        user.setLastUpdateMileage(System.currentTimeMillis());
-        userRepositoryFront.save(user);
     }
 
     private void updateLastAskForUpdateMileage() {
