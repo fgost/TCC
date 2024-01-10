@@ -53,11 +53,15 @@ public class UserService {
                 .orElseThrow(() -> new ObjectNotFoundException(Constants.USER_NOT_FOUND));
     }
 
+    public UserEntity findByEmail(String email) {
+        return repository.findByEmail(email)
+                .orElseThrow(() -> new ObjectNotFoundException(Constants.USER_NOT_FOUND));
+    }
+
     public UserPhotoEntity getProfilePhotoInfo(String code) {
         var userEntity = findByCode(code);
-        var photoEntity = photoRepository.findByUserId(userEntity.getId())
+        return photoRepository.findByUserId(userEntity.getId())
                 .orElseThrow(() -> new ObjectNotFoundException(Constants.USER_PHOTO_NOT_FOUND));
-        return photoEntity;
     }
 
     @Transactional
