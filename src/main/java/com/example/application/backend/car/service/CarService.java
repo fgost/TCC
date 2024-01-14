@@ -58,14 +58,14 @@ public class CarService {
     }
 
     public List<CarEntity> findByUser(long id) {
-        return carRepository.findByUsuario(id);
+        return carRepository.findByuserOwner(id);
     }
 
     @Transactional
     public CarEntity insert(CarEntity carEntity, String user) {
         try {
             var userDb = userRepositoryFront.findByEmail(user);
-            carEntity.setUsuario(userDb.getId());
+            carEntity.setUserOwner(userDb.getId());
             CarEntity savedCar = carRepository.save(carEntity);
 
             List<Integer> categoryIds = categoryRepository.findAllIds();

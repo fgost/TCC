@@ -5,7 +5,7 @@ BEGIN
         RAISE NOTICE 'The table already has records.';
     ELSE
         -- Insert 31 records into the table
-        INSERT INTO cars (code, car_model, auto_maker, year, color, licence_plate, motor, type, mileage, usuario)
+        INSERT INTO cars (code, car_model, auto_maker, year, color, licence_plate, motor, type, mileage, user_owner)
         VALUES
             ('be7ce71e-c37b-4771-8279-1687ba326b02', 'Corolla', 'Toyota', '2021', 'Preto', 'ENH-5235', 1,25985.69, 1),
             ('b1a2ce39-eef3-45f3-8e99-8bef011879b2', 'Golf GTI', 'Volkswagen', '2021', 'Branco', 0,25985.69, 1),

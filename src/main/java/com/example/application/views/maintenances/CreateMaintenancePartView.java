@@ -167,7 +167,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
     private List<CarEntity> locateCars() {
         var user = this.securityConfig.getAuthenticatedUser();
         var idUser = userRepositoryFront.findByEmail(user);
-        return carRepository.findByUsuario(idUser.getId());
+        return carRepository.findByuserOwner(idUser.getId());
     }
 }
 

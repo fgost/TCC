@@ -55,9 +55,11 @@ public class ManageCarView extends Composite<VerticalLayout> {
         this.autoMakerRepository = autoMakerRepository;
         this.userRepositoryFront = userRepositoryFront;
 
-        carGrid.setColumns("carModel", "licencePlate");
-        carGrid.addComponentColumn(this::createButtonWithIcon).setHeader("Edit");
-        carGrid.addComponentColumn(this::createDeleteButton).setHeader("Delete");
+        carGrid.setColumns();
+        carGrid.addColumn(CarEntity::getCarModel).setHeader("Model");
+        carGrid.addColumn(CarEntity::getLicencePlate).setHeader("License").setAutoWidth(true);
+        carGrid.addComponentColumn(this::createButtonWithIcon).setAutoWidth(true).setHeader("Edit");
+        carGrid.addComponentColumn(this::createDeleteButton).setAutoWidth(true).setHeader("Delete");
         loadCarsData();
         getContent().add(carGrid);
     }
@@ -65,12 +67,14 @@ public class ManageCarView extends Composite<VerticalLayout> {
     private Button createButtonWithIcon(CarEntity carEntity) {
         Button button = new Button(new Icon(VaadinIcon.PENCIL));
         button.addClickListener(event -> handleEditButtonClick(carEntity));
+        button.setMinWidth("10px");
         return button;
     }
 
     private Button createDeleteButton(CarEntity carEntity) {
         Button deleteButton = new Button(new Icon(VaadinIcon.TRASH));
         deleteButton.addClickListener(event -> showConfirmationDialog(carEntity));
+        deleteButton.setMinWidth("10px");
         return deleteButton;
     }
 

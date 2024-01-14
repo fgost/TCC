@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS cars (
     motor character varying(100) NOT NULL,
     type smallint NOT NULL,
     mileage double precision NOT NULL,
-    usuario smallint NOT NULL,
-    CONSTRAINT user_id_fk_user FOREIGN KEY (usuario) REFERENCES users (id),
+    user_owner smallint NOT NULL,
+    CONSTRAINT user_id_fk_user FOREIGN KEY (user_owner) REFERENCES users (id),
     CONSTRAINT pk_cars PRIMARY KEY(id)
 );
 

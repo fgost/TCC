@@ -69,17 +69,12 @@ public class CreateCarView extends Composite<VerticalLayout> {
         autoMakerField.setItems(dataProvider.getItems());
 
         Button addAutoMakerButton = new Button(new Icon("vaadin", "plus"));
-        addAutoMakerButton.addClickListener(event -> {
-            // Adicione aqui a lógica para adicionar um novo fabricante de automóveis
-            // Pode ser um diálogo, um formulário pop-up, etc.
-            Notification.show("Add Auto Maker functionality goes here!");
-        });
+        addAutoMakerButton.addClickListener(event -> Notification.show("Add Auto Maker functionality goes here!"));
 
         HorizontalLayout autoMakerLayout = new HorizontalLayout(autoMakerField, addAutoMakerButton);
         autoMakerLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
         autoMakerLayout.setWidth("100%");
 
-        // Conteúdo do antigo método getAutoModelLayout movido para cá
         ComboBox<AutoModelEntity> modelField = new ComboBox<>("Model");
         modelField.setItemLabelGenerator(AutoModelEntity::getAutoModel);
         modelField.setReadOnly(true);
@@ -87,18 +82,13 @@ public class CreateCarView extends Composite<VerticalLayout> {
         ListDataProvider<AutoModelEntity> modelDataProvider = DataProvider.ofCollection(autoModelRepository.findAll());
         modelField.setItems(modelDataProvider.getItems());
 
-
-
         Button addAutoModelButton = new Button(new Icon("vaadin", "plus"));
         addAutoModelButton.setEnabled(false);
 
         addAutoModelButton.addClickListener(event -> {
-
             if(autoMakerField.isEmpty()) {
                 autoMakerField.setValue(new AutoMakerEntity());
-
             }
-            System.out.println("Botão Clicado!");
             AddAutoModelDialog addAutoModelDialog = new AddAutoModelDialog(autoMakerField.getValue().getAutoMaker());
             addAutoModelDialog.open();
         });
@@ -106,7 +96,6 @@ public class CreateCarView extends Composite<VerticalLayout> {
         HorizontalLayout autoModelLayout = new HorizontalLayout(modelField, addAutoModelButton);
         autoModelLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-        // Adicione autoModelLayout ao autoMakerLayout
         autoMakerLayout.add(autoModelLayout);
 
         LocalDate now = LocalDate.now(ZoneId.systemDefault());
@@ -181,6 +170,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 }
             }
         });
+
         cancelButton.addClickListener(event -> {
             modelField.clear();
             yearPicker.clear();
@@ -253,10 +243,12 @@ public class CreateCarView extends Composite<VerticalLayout> {
 
         colorField.addValueChangeListener(event -> {
             String informedColor = event.getValue();
-            if (informedColor != null && !informedColor.isEmpty()) {
+            if (informedColor != null && informedColor.length() >= 3) {
                 mileageField.setVisible(true);
+                mileageField.setEnabled(true);
             } else {
                 mileageField.setVisible(false);
+                mileageField.setEnabled(false);
                 motorField.setVisible(false);
                 licencePlateField.setVisible(false);
                 saveButton.setEnabled(false);
@@ -275,8 +267,8 @@ public class CreateCarView extends Composite<VerticalLayout> {
         });
 
         motorField.addValueChangeListener(event -> {
-            String informedmotor = event.getValue();
-            if (informedmotor != null && !informedmotor.isEmpty()) {
+            String informedMotor = event.getValue();
+            if (informedMotor != null && !informedMotor.isEmpty()) {
                 licencePlateField.setVisible(true);
             } else {
                 licencePlateField.setVisible(false);
@@ -286,7 +278,13 @@ public class CreateCarView extends Composite<VerticalLayout> {
 
         licencePlateField.addValueChangeListener(event -> {
             String informedLicensePlate = event.getValue();
-            saveButton.setEnabled(informedLicensePlate != null && !informedLicensePlate.isEmpty());
+            informedLicensePlate = informedLicensePlate.toUpperCase();
+            licencePlateField.setValue(informedLicensePlate);
+            if (informedLicensePlate.length() <= 8) {
+                saveButton.setEnabled(informedLicensePlate.length() >= 7);
+            } else {
+                licencePlateField.setValue(informedLicensePlate.substring(0, 8));
+            }
         });
 
         autoMakerField.addValueChangeListener(event -> {
