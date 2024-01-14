@@ -2,7 +2,10 @@ package com.example.application.backend.users.domain;
 
 import com.example.application.backend.car.domain.CarEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,6 +15,9 @@ import java.util.*;
 
 
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class UserEntity implements UserDetails, Serializable {
@@ -28,20 +34,8 @@ public class UserEntity implements UserDetails, Serializable {
     private String password;
     private long lastUpdateMileage;
     private long lastAskForUpdateMileage;
-
-    public UserEntity(Long id, String code, String name, String lastName, String email, String password,
-                      long lastUpdateMileage, long lastAskForUpdateMileage, Set<Preference> preferences, List<CarEntity> cars) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.lastUpdateMileage = lastUpdateMileage;
-        this.lastAskForUpdateMileage = lastAskForUpdateMileage;
-        this.preferences = preferences;
-        this.cars = cars;
-    }
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "users_preferences", joinColumns = @JoinColumn(name = "user_id"))
@@ -54,10 +48,6 @@ public class UserEntity implements UserDetails, Serializable {
             inverseJoinColumns = @JoinColumn(name = "cars_id")
     )
     private List<CarEntity> cars;
-
-    public UserEntity() {
-
-    }
 
     @PrePersist
     private void setCode() {
@@ -114,45 +104,5 @@ public class UserEntity implements UserDetails, Serializable {
         Map<String, String> map = new HashMap<>();
         cars.forEach(p -> map.put(p.getCarModel(), p.getYear()));
         return map;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setPreferences(Set<Preference> preferences) {
-        this.preferences = preferences;
-    }
-
-    public void setCars(List<CarEntity> cars) {
-        this.cars = cars;
-    }
-
-    public void setLastUpdateMileage(long lastUpdateMileage) {
-        this.lastUpdateMileage = lastUpdateMileage;
-    }
-
-    public void setLastAskForUpdateMileage(long lastAskForUpdateMileage) {
-        this.lastAskForUpdateMileage = lastAskForUpdateMileage;
     }
 }

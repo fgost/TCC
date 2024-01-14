@@ -50,6 +50,8 @@ public class MaintenancePartService {
         existentEntity.setCost(entity.getCost());
         existentEntity.setStatus(entity.getStatus());
         existentEntity.setType(entity.getType());
+        existentEntity.setSerialNumber(entity.getSerialNumber());
+
         var dto = existentEntity;
         try {
             return repository.save(dto);

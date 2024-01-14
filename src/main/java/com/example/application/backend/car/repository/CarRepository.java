@@ -12,7 +12,7 @@ public interface CarRepository extends JpaRepository<CarEntity, Long> {
 
     List<CarEntity> findAll();
 
-    List<CarEntity> findByUsuario(Long id);
+    List<CarEntity> findByuserOwner(Long id);
 
     List<CarEntity> findByYearContainingIgnoreCase(String year);
 

@@ -84,7 +84,7 @@ public class MainView extends VerticalLayout {
         HorizontalLayout carsLayout = new HorizontalLayout();
         carsLayout.setWidthFull();
 
-        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
 
         cars.sort(Comparator.comparing(CarEntity::getCarModel));
 
@@ -126,7 +126,7 @@ public class MainView extends VerticalLayout {
     }
 
     private List<MaintenancePartEntity> loadAllMaintenanceParts() {
-        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
         List<MaintenancePartEntity> allMaintenanceParts = new ArrayList<>();
 
         for (CarEntity car : cars) {
@@ -181,21 +181,27 @@ public class MainView extends VerticalLayout {
     }
 
     private List<String> locateLicencePlates() {
-        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
 
         return cars.stream().map(CarEntity::getLicencePlate).sorted()
                 .collect(Collectors.toList());
     }
 
     private void askForUpdateMileageCars() {
+
+        Date currentDate = new Date();
         var currentUser = userRepositoryFront.findByEmail(securityConfig.getAuthenticatedUser());
+        var createdAt = currentUser.getCreatedAt();
         var lastUpdateMileage = currentUser.getLastUpdateMileage();
         var differenceLastUpdate = System.currentTimeMillis() - lastUpdateMileage;
         var lastAskForUpdate = currentUser.getLastAskForUpdateMileage();
         var differenceLastAskUpdate = lastAskForUpdate - lastUpdateMileage;
         if (carsGrid.getDataProvider().size(new Query<>()) > 0
+                && createdAt != null
+                && (currentDate.getTime() - createdAt.getTime()) > (7L * 24 * 60 * 60 * 1000)
                 && differenceLastUpdate > (7 * 24 * 60 * 60 * 1000)
                 && differenceLastAskUpdate > (24 * 60 * 60 * 1000)) {
+
             showMessageToUpdateTheMileageCars();
         }
     }
@@ -222,7 +228,7 @@ public class MainView extends VerticalLayout {
     }
 
     private void updateMileageCars() {
-        var carEntity = carRepository.findByUsuario(getAuthenticatedUser().getId());
+        var carEntity = carRepository.findByuserOwner(getAuthenticatedUser().getId());
         for (CarEntity cars : carEntity) {
             Dialog dialog = new Dialog();
             dialog.setModal(true);
@@ -264,7 +270,7 @@ public class MainView extends VerticalLayout {
     }
 
     private void loadCarsData() {
-        List<CarEntity> cars = carRepository.findByUsuario(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
         carsGrid.setItems(cars);
     }
 

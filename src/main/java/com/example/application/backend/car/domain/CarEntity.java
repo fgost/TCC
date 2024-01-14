@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -32,7 +34,7 @@ public class CarEntity implements Serializable {
     private String licencePlate;
     private double mileage;
     private CarTypeEnum type;
-    private long usuario;
+    private long userOwner;
     @ManyToMany
     @JoinTable(
             name = "categories_cars",
@@ -44,53 +46,5 @@ public class CarEntity implements Serializable {
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();
-    }
-
-    public void setMotor(String motor) {
-        this.motor = motor;
-    }
-
-    public void setLicencePlate(String licencePlate) {
-        this.licencePlate = licencePlate;
-    }
-
-    public void setUsuario(long usuario) {
-        this.usuario = usuario;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setCarModel(String carModel) {
-        this.carModel = carModel;
-    }
-
-    public void setAutoMaker(String autoMaker) {
-        this.autoMaker = autoMaker;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public void setType(CarTypeEnum type) {
-        this.type = type;
-    }
-
-    public void setMileage(double mileage) {
-        this.mileage = mileage;
-    }
-
-    public void setCategories(List<CategoryEntity> categories) {
-        this.categories = categories;
     }
 }

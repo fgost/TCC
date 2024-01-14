@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     password character varying(100) NOT NULL,
     last_update_mileage integer NOT NULL,
     last_ask_for_update_mileage integer NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_users PRIMARY KEY(id),
     CONSTRAINT users_uq_email UNIQUE (email)
