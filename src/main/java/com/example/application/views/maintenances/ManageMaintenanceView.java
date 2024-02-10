@@ -9,6 +9,7 @@ import com.example.application.backend.maintenancePart.service.MaintenancePartSe
 import com.example.application.backend.type.domain.TypeEnum;
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.repository.UserRepositoryFront;
+import com.example.application.backend.users.service.UserService;
 import com.example.application.config.security.SecurityConfig;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Composite;
@@ -43,6 +44,7 @@ import java.util.List;
 public class ManageMaintenanceView extends Composite<VerticalLayout> {
     private final Div noMaintenancesMessage = new Div();
     private final MaintenancePartService maintenancePartService;
+    private final UserService userService;
     private final MaintenancePartRepository maintenancePartRepository;
     private final SecurityConfig securityConfig;
     private final UserRepositoryFront userRepositoryFront;
@@ -51,13 +53,14 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
     private final ComboBox<CarEntity> licensePlateComboBox = new ComboBox<>("Select By Licence Plate");
 
     @Autowired
-    public ManageMaintenanceView(MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, MaintenancePartService maintenancePartService, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront1) {
+    public ManageMaintenanceView(MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, MaintenancePartService maintenancePartService, UserService userService, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront1) {
         this.maintenancePartRepository = maintenancePartRepository;
         this.maintenancePartService = maintenancePartService;
+        this.userService = userService;
         this.securityConfig = securityConfig;
         this.userRepositoryFront = userRepositoryFront1;
 
-        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
         cars.sort(Comparator.comparing(CarEntity::getCarModel));
 
         maintenanceGrid.removeAllColumns();
@@ -74,12 +77,12 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
 
         carComboBox.addValueChangeListener(event -> {
             updateMaintenanceGrid(event.getValue());
-            selectLicensePlateByCar(event.getValue());
+            licensePlateComboBox.setValue(event.getValue());
         });
 
         licensePlateComboBox.addValueChangeListener(event -> {
             updateMaintenanceGrid(event.getValue());
-            selectCarByLicensePlate(event.getValue());
+            carComboBox.setValue(event.getValue());
         });
 
         if (!cars.isEmpty()) {
@@ -89,15 +92,18 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
         }
 
         noMaintenancesMessage.setText("No maintenance records found for the selected vehicle.");
-        noMaintenancesMessage.getStyle().set("color", "red"); //
+        noMaintenancesMessage.getStyle().set("color", "red");
 
-        getContent().add(carComboBox, licensePlateComboBox, noMaintenancesMessage, maintenanceGrid);
+        HorizontalLayout comboBoxLayout = new HorizontalLayout(carComboBox, licensePlateComboBox);
+        comboBoxLayout.setWidthFull();
+        comboBoxLayout.setSpacing(true);
 
+        getContent().add(comboBoxLayout, noMaintenancesMessage, maintenanceGrid);
     }
 
     private Button createButtonWithIcon(MaintenancePartEntity maintenancePart, CarEntity carEntity) {
         Button button = new Button(new Icon(VaadinIcon.PENCIL));
-        button.addClickListener(event -> handleEditButtonClick(maintenancePart, carEntity));
+        button.addClickListener(event -> showEditCarDialog(maintenancePart, carEntity));
         button.setMinWidth("10px");
         return button;
     }
@@ -107,10 +113,6 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
         deleteButton.addClickListener(event -> showConfirmationDialog(carEntity, maintenancePart));
         deleteButton.setMinWidth("10px");
         return deleteButton;
-    }
-
-    private void handleEditButtonClick(MaintenancePartEntity maintenancePart, CarEntity carEntity) {
-        showEditCarDialog(maintenancePart, carEntity);
     }
 
     private void showEditCarDialog(MaintenancePartEntity maintenancePartEntity, CarEntity carEntity) {
@@ -180,19 +182,8 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
         maintenancePartEntity.setInstallationDate(editedMaintenancePart.getInstallationDate());
         maintenancePartEntity.setSerialNumber(editedMaintenancePart.getSerialNumber());
         maintenancePartService.update(maintenancePartEntity.getCode(), maintenancePartEntity);
-        updateLastUpdateMileage();
+        userService.updateLastUpdateMileage();
         loadCarsData(carEntity);
-    }
-
-    private void updateLastUpdateMileage() {
-        var currentUser = securityConfig.getAuthenticatedUser();
-        var user = userRepositoryFront.findByEmail(currentUser);
-        user.setName(user.getName());
-        user.setLastName(user.getLastName());
-        user.setEmail(user.getEmail());
-        user.setPassword(user.getPassword());
-        user.setLastUpdateMileage(System.currentTimeMillis());
-        userRepositoryFront.save(user);
     }
 
     private void showConfirmationDialog(CarEntity carEntity, MaintenancePartEntity maintenancePart) {
@@ -205,7 +196,8 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
 
         Button confirmButton = new Button("Delete Anyway");
         confirmButton.addClickListener(event -> {
-            handleDeleteButtonClick(maintenancePart, carEntity);
+            maintenancePartService.deleteByCode(maintenancePart.getCode());
+            loadCarsData(carEntity);
             confirmationDialog.close();
         });
 
@@ -230,11 +222,6 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
         confirmationDialog.open();
     }
 
-    private void handleDeleteButtonClick(MaintenancePartEntity maintenancePartEntity, CarEntity carEntity) {
-        maintenancePartService.deleteByCode(maintenancePartEntity.getCode());
-        loadCarsData(carEntity);
-    }
-
     private void updateMaintenanceGrid(CarEntity selectedCar) {
         if (selectedCar != null) {
             List<MaintenancePartEntity> maintenances = maintenancePartRepository.findByCar(selectedCar.getId());
@@ -248,23 +235,15 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
         }
     }
 
-    private void selectCarByLicensePlate(CarEntity selectedCarByLicensePlate) {
-        carComboBox.setValue(selectedCarByLicensePlate);
-    }
-
-    private void selectLicensePlateByCar(CarEntity selectedLicensePlateByCar) {
-        licensePlateComboBox.setValue(selectedLicensePlateByCar);
-    }
-
-    private UserEntity getAuthenticatedUser() {
-        var user = this.securityConfig.getAuthenticatedUser();
-        return userRepositoryFront.findByEmail(user);
-    }
-
     private void loadCarsData(CarEntity carEntity) {
         if (carEntity != null) {
             List<MaintenancePartEntity> maintenancePartEntities = maintenancePartRepository.findByCar(carEntity.getId());
             maintenanceGrid.setItems(maintenancePartEntities);
         }
+    }
+
+    private UserEntity getAuthenticatedUser() {
+        var user = this.securityConfig.getAuthenticatedUser();
+        return userRepositoryFront.findByEmail(user);
     }
 }

@@ -12,6 +12,15 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entity class representing a car in the application. Each instance of this class corresponds to a record in the
+ * "cars" table in the database. The class includes JPA annotations for entity mapping and defines the relationships
+ * with other entities. The `PrePersist` annotated method is used to set a unique code (UUID) before persisting a new
+ * entity.
+ *
+ * @author m.firmiano@aluno.ifsp.edu.br
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,6 +52,10 @@ public class CarEntity implements Serializable {
     )
     private List<CategoryEntity> categories;
 
+    /**
+     * Sets a unique code (UUID) before persisting a new entity. This method is annotated with `PrePersist` to ensure
+     * that the code is set before saving the entity to the database.
+     */
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();

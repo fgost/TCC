@@ -12,6 +12,9 @@ import com.example.application.exception.util.ExceptionUtils;
 import com.example.application.utils.dto.OnlyCodeDto;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -20,15 +23,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Service class for handling business logic related to cars. This class includes methods to interact with the
+ * underlying data layer for performing CRUD operations on car entities.
+ *
+ * @author m.firmiano@aluno.ifsp.edu.br
+ *
+ * @see CarRepository - Repository for accessing car entities in the database
+ * @see CategoryRepository - Repository for accessing category entities in the database
+ * @see CategoryService - Service for handling business logic related to categories
+ * @see JdbcTemplate - Spring JDBC template for executing SQL queries
+ * @see UserRepositoryFront - Repository for accessing user entities in the database
+ * @see CarEntity - Entity representing a car
+ * @see OnlyCodeDto - DTO representing a code field
+ */
 @AllArgsConstructor
 @Service
 public class CarService {
+    private static final Logger LOGGER = LogManager.getLogger(CarService.class);
+
+    @Autowired
     private CarRepository carRepository;
+
+    @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
     private CategoryService categoryService;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private UserRepositoryFront userRepositoryFront;
 
+    /**
+     * Find all cars in the database
+     *
+     * @param carModel - String representing the model of the car.
+     * @param year -  String representing the year of the car.
+     *
+     * @return {@link List<CarEntity> } - List of entities present in the database.
+     */
     public List<CarEntity> findAll(String carModel, String year) {
         boolean hasCarModel = carModel != null && !carModel.isBlank();
         boolean hasYear = year != null && !year.isBlank();
@@ -41,26 +77,53 @@ public class CarService {
             return carRepository.findAll();
         } else if (hasYear) {
             return carRepository.findByYearContainingIgnoreCase(year);
-        } else if (hasCarModel) {
-            return carRepository.findByCarModelContainingIgnoreCase(carModel);
         } else {
-            return carRepository.findAll();
+            return carRepository.findByCarModelContainingIgnoreCase(carModel);
         }
     }
 
+    /**
+     * Finds a car in the database based on a given external code (UUID).
+     *
+     * @param code - String representing the external code (UUID) of the car.
+     *
+     * @return {@link CarEntity } - Entity present in the database.
+     */
     public CarEntity findByCode(String code) {
         return carRepository.findByCode(code)
                 .orElseThrow(() -> new ObjectNotFoundException(Constants.CAR_NOT_FOUND));
     }
 
+    /**
+     * Finds a car in the database based on a given license plate.
+     *
+     * @param licensePlate - String representing the license plate of the car.
+     *
+     * @return {@link CarEntity } - Entity present in the database.
+     */
     public CarEntity findByLicensePlate(String licensePlate) {
         return carRepository.findByLicencePlate(licensePlate);
     }
 
+    /**
+     * Finds all cars associated with a user in the database.
+     *
+     * @param id - long representing the ID of the user.
+     *
+     * @return {@link List<CarEntity> } - List of entities present in the database.
+     */
     public List<CarEntity> findByUser(long id) {
-        return carRepository.findByuserOwner(id);
+        return carRepository.findByUserOwner(id);
     }
 
+    /**
+     * Inserts a car into the database based on the provided entity and associated user.
+     *
+     * @param carEntity - Entity to be persisted.
+     * @param user - String representing the user to be associated with the new car.
+     *
+     * @return {@link CarEntity } - Entity that was inserted into the database.
+     */
     @Transactional
     public CarEntity insert(CarEntity carEntity, String user) {
         try {
@@ -77,10 +140,19 @@ public class CarService {
 
             return savedCar;
         } catch (DataIntegrityViolationException ex) {
+            LOGGER.error("Error to insert a car.", ex);
             throw ExceptionUtils.buildSameIdentifierException(Constants.CAR_DUPLICATED);
         }
     }
 
+    /**
+     * Updates a car in the database based on the provided entity and the code of the existing entity.
+     *
+     * @param entity - Entity with the updated fields.
+     * @param code - String representing the code of the existing entity.
+     *
+     * @return {@link CarEntity } - Entity that was updated in the database.
+     */
     @Transactional
     public CarEntity update(String code, CarEntity entity) {
         var existentEntity = findByCode(code);
@@ -99,6 +171,14 @@ public class CarService {
         }
     }
 
+    /**
+     * Updates the category of a car in the database based on the provided Set<OnlyCodeDto> and the code of the existing entity.
+     *
+     * @param code - String representing the code of the existing entity.
+     * @param inputList - Set<OnlyCodeDto> with the updated categories.
+     *
+     * @return {@link CarEntity } - Entity that was updated in the database.
+     */
     @Transactional
     public CarEntity updateCategory(String code, Set<OnlyCodeDto> inputList) {
         var entity = findByCode(code);
@@ -114,6 +194,11 @@ public class CarService {
         return carRepository.save(entity);
     }
 
+    /**
+     * Deletes a car in the database based on the provided external code (UUID).
+     *
+     * @param code - String representing the external code (UUID) of the car.
+     */
     @Transactional
     public void deleteByCode(String code) {
         try {
@@ -123,6 +208,4 @@ public class CarService {
             throw ExceptionUtils.buildNotPersistedException(Constants.CAR_DELETION_ERROR);
         }
     }
-
-
 }

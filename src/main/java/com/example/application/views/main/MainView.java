@@ -84,7 +84,7 @@ public class MainView extends VerticalLayout {
         HorizontalLayout carsLayout = new HorizontalLayout();
         carsLayout.setWidthFull();
 
-        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
 
         cars.sort(Comparator.comparing(CarEntity::getCarModel));
 
@@ -126,7 +126,7 @@ public class MainView extends VerticalLayout {
     }
 
     private List<MaintenancePartEntity> loadAllMaintenanceParts() {
-        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
         List<MaintenancePartEntity> allMaintenanceParts = new ArrayList<>();
 
         for (CarEntity car : cars) {
@@ -181,7 +181,7 @@ public class MainView extends VerticalLayout {
     }
 
     private List<String> locateLicencePlates() {
-        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
 
         return cars.stream().map(CarEntity::getLicencePlate).sorted()
                 .collect(Collectors.toList());
@@ -228,7 +228,7 @@ public class MainView extends VerticalLayout {
     }
 
     private void updateMileageCars() {
-        var carEntity = carRepository.findByuserOwner(getAuthenticatedUser().getId());
+        var carEntity = carRepository.findByUserOwner(getAuthenticatedUser().getId());
         for (CarEntity cars : carEntity) {
             Dialog dialog = new Dialog();
             dialog.setModal(true);
@@ -270,7 +270,7 @@ public class MainView extends VerticalLayout {
     }
 
     private void loadCarsData() {
-        List<CarEntity> cars = carRepository.findByuserOwner(getAuthenticatedUser().getId());
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
         carsGrid.setItems(cars);
     }
 

@@ -5,10 +5,13 @@ import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.domain.UserPhotoEntity;
 import com.example.application.backend.users.repository.UserPhotoRepository;
 import com.example.application.backend.users.repository.UserRepository;
+import com.example.application.backend.users.repository.UserRepositoryFront;
+import com.example.application.config.security.SecurityConfig;
 import com.example.application.domain.Constants;
 import com.example.application.exception.domain.ObjectNotFoundException;
 import com.example.application.exception.util.ExceptionUtils;
 import com.example.application.utils.dto.OnlyCodeDto;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,18 +20,14 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@AllArgsConstructor
 public class UserService {
+
+    private final UserRepositoryFront userRepositoryFront;
+    private final SecurityConfig securityConfig;
     private final UserRepository repository;
     private final UserPhotoRepository photoRepository;
     private final CarService carService;
-
-    public UserService(UserRepository repository, UserPhotoRepository photoRepository, CarService carService) {
-        this.repository = repository;
-        this.photoRepository = photoRepository;
-        this.carService = carService;
-    }
-
-    public static final String DEFAULT_SUFFIX = "profile_photo";
 
     public List<UserEntity> findAll(String name, String email) {
         boolean hasName = name != null && !name.isBlank();
@@ -42,10 +41,7 @@ public class UserService {
             return repository.findAll();
         if (hasEmail)
             return repository.findByEmailContainingIgnoreCase(email);
-        if (hasName)
-            return repository.findByNameContainingIgnoreCase(name);
-
-        return repository.findAll();
+        return repository.findByNameContainingIgnoreCase(name);
     }
 
     public UserEntity findByCode(String code) {
@@ -67,7 +63,6 @@ public class UserService {
     @Transactional
     public UserEntity insert(UserEntity entity) {
         try {
-
             entity.setPassword(new BCryptPasswordEncoder().encode(entity.getPassword()));
             return repository.save(entity);
         } catch (Exception e) {
@@ -109,5 +104,17 @@ public class UserService {
         } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.USER_DELETION_ERROR);
         }
+    }
+
+    @Transactional
+    public void updateLastUpdateMileage() {
+        var currentUser = securityConfig.getAuthenticatedUser();
+        var user = userRepositoryFront.findByEmail(currentUser);
+        user.setName(user.getName());
+        user.setLastName(user.getLastName());
+        user.setEmail(user.getEmail());
+        user.setPassword(user.getPassword());
+        user.setLastUpdateMileage(System.currentTimeMillis());
+        userRepositoryFront.save(user);
     }
 }

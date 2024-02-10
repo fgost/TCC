@@ -7,6 +7,7 @@ import com.example.application.backend.autoModel.AutoModelRepository;
 import com.example.application.backend.car.CarFacade;
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.domain.CarTypeEnum;
+import com.example.application.backend.car.model.response.CarResponse;
 import com.example.application.config.security.SecurityConfig;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Composite;
@@ -30,6 +31,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -45,7 +47,10 @@ import java.util.stream.IntStream;
 @Uses(Icon.class)
 @PermitAll
 public class CreateCarView extends Composite<VerticalLayout> {
+    @Autowired
     private final CarFacade carFacade;
+
+    @Autowired
     private final SecurityConfig securityConfig;
 
     public CreateCarView(CarFacade carFacade, SecurityConfig securityConfig, AutoMakerRepository autoMakerRepository, AutoModelRepository autoModelRepository) {
@@ -86,7 +91,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
         addAutoModelButton.setEnabled(false);
 
         addAutoModelButton.addClickListener(event -> {
-            if(autoMakerField.isEmpty()) {
+            if (autoMakerField.isEmpty()) {
                 autoMakerField.setValue(new AutoMakerEntity());
             }
             AddAutoModelDialog addAutoModelDialog = new AddAutoModelDialog(autoMakerField.getValue().getAutoMaker());
@@ -135,9 +140,9 @@ public class CreateCarView extends Composite<VerticalLayout> {
         motorField.setVisible(false);
         motorField.setValueChangeMode(ValueChangeMode.EAGER);
 
-        TextField licencePlateField = new TextField("Licence Plate");
-        licencePlateField.setVisible(false);
-        licencePlateField.setValueChangeMode(ValueChangeMode.EAGER);
+        TextField licensePlateField = new TextField("Licence Plate");
+        licensePlateField.setVisible(false);
+        licensePlateField.setValueChangeMode(ValueChangeMode.EAGER);
 
         Button saveButton = new Button("Save");
         Button cancelButton = new Button("Cancel");
@@ -146,7 +151,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
 
         saveButton.addClickListener(event -> {
             if (modelField.isEmpty() || yearPicker.isEmpty() || autoMakerField.isEmpty() || colorField.isEmpty() ||
-                    typeField.isEmpty() || mileageField.isEmpty() || motorField.isEmpty() || licencePlateField.isEmpty()) {
+                    typeField.isEmpty() || mileageField.isEmpty() || motorField.isEmpty() || licensePlateField.isEmpty()) {
                 Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
             } else {
                 CarEntity car = new CarEntity();
@@ -157,11 +162,11 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 car.setType(typeField.getValue());
                 car.setMileage(Double.parseDouble(mileageField.getValue()));
                 car.setMotor(motorField.getValue());
-                car.setLicencePlate(licencePlateField.getValue());
+                car.setLicencePlate(licensePlateField.getValue());
 
-                CarEntity carFound = carFacade.findByLicensePlate(licencePlateField.getValue());
+                CarResponse carFound = carFacade.findByLicensePlate(licensePlateField.getValue());
 
-                if (carFound != null && carFound.getLicencePlate().equals(licencePlateField.getValue())) {
+                if (carFound != null && carFound.getLicensePlate().equals(licensePlateField.getValue())) {
                     Notification.show("License Plate already exist!", 3000, Notification.Position.TOP_CENTER);
                 } else {
                     this.carFacade.insert(car, this.securityConfig.getAuthenticatedUser());
@@ -179,7 +184,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
             typeField.clear();
             mileageField.clear();
             motorField.clear();
-            licencePlateField.clear();
+            licensePlateField.clear();
             modelField.setReadOnly(true);
             addAutoModelButton.setEnabled(false);
         });
@@ -209,7 +214,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 colorField.setVisible(false);
                 mileageField.setVisible(false);
                 motorField.setVisible(false);
-                licencePlateField.setVisible(false);
+                licensePlateField.setVisible(false);
                 saveButton.setEnabled(false);
             }
         });
@@ -223,7 +228,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 colorField.setVisible(false);
                 mileageField.setVisible(false);
                 motorField.setVisible(false);
-                licencePlateField.setVisible(false);
+                licensePlateField.setVisible(false);
                 saveButton.setEnabled(false);
             }
         });
@@ -236,7 +241,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 colorField.setVisible(false);
                 mileageField.setVisible(false);
                 motorField.setVisible(false);
-                licencePlateField.setVisible(false);
+                licensePlateField.setVisible(false);
                 saveButton.setEnabled(false);
             }
         });
@@ -250,7 +255,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 mileageField.setVisible(false);
                 mileageField.setEnabled(false);
                 motorField.setVisible(false);
-                licencePlateField.setVisible(false);
+                licensePlateField.setVisible(false);
                 saveButton.setEnabled(false);
             }
         });
@@ -261,7 +266,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
                 motorField.setVisible(true);
             } else {
                 motorField.setVisible(false);
-                licencePlateField.setVisible(false);
+                licensePlateField.setVisible(false);
                 saveButton.setEnabled(false);
             }
         });
@@ -269,21 +274,21 @@ public class CreateCarView extends Composite<VerticalLayout> {
         motorField.addValueChangeListener(event -> {
             String informedMotor = event.getValue();
             if (informedMotor != null && !informedMotor.isEmpty()) {
-                licencePlateField.setVisible(true);
+                licensePlateField.setVisible(true);
             } else {
-                licencePlateField.setVisible(false);
+                licensePlateField.setVisible(false);
                 saveButton.setEnabled(false);
             }
         });
 
-        licencePlateField.addValueChangeListener(event -> {
+        licensePlateField.addValueChangeListener(event -> {
             String informedLicensePlate = event.getValue();
             informedLicensePlate = informedLicensePlate.toUpperCase();
-            licencePlateField.setValue(informedLicensePlate);
+            licensePlateField.setValue(informedLicensePlate);
             if (informedLicensePlate.length() <= 8) {
                 saveButton.setEnabled(informedLicensePlate.length() >= 7);
             } else {
-                licencePlateField.setValue(informedLicensePlate.substring(0, 8));
+                licensePlateField.setValue(informedLicensePlate.substring(0, 8));
             }
         });
 
@@ -298,7 +303,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
         });
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(autoMakerLayout, autoModelLayout, yearPicker, typeField, colorField, mileageField, motorField, licencePlateField);
+        formLayout.add(autoMakerLayout, autoModelLayout, yearPicker, typeField, colorField, mileageField, motorField, licensePlateField);
 
         VerticalLayout fieldLayout = new VerticalLayout(formLayout);
         fieldLayout.setPadding(false);
