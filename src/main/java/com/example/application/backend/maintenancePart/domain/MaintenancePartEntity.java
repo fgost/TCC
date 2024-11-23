@@ -5,10 +5,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -26,11 +28,15 @@ public class MaintenancePartEntity {
     private String manufacturer;
     private String model;
     private String installationDate;
-    private int lifeSpan;
+    private double lifeSpan;
     private double cost;
     private MaintenancePartStatusEnum status;
     private TypeEnum type;
     private long car;
+    private LifeSpanEnum lifeSpanType;
+    private double limiteParaAlerta;
+    private double limiteParaUrgencia;
+
 
     public void setCar(long car) {
         this.car = car;
@@ -73,7 +79,7 @@ public class MaintenancePartEntity {
         this.installationDate = installationDate;
     }
 
-    public void setLifeSpan(int lifeSpan) {
+    public void setLifeSpan(double lifeSpan) {
         this.lifeSpan = lifeSpan;
     }
 
@@ -87,5 +93,29 @@ public class MaintenancePartEntity {
 
     public void setType(TypeEnum type) {
         this.type = type;
+    }
+
+    public void setLifeSpanType(LifeSpanEnum lifeSpanType) {
+        this.lifeSpanType = lifeSpanType;
+    }
+
+    public void setLimiteParaAlerta(double limiteParaAlerta) {
+        this.limiteParaAlerta = limiteParaAlerta;
+    }
+
+    public double getLifeSpan() {
+        return lifeSpan;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getLimiteParaAlerta() {
+        return limiteParaAlerta;
+    }
+
+    public void setLimiteParaUrgencia(double limiteParaUrgencia) {
+        this.limiteParaUrgencia = limiteParaUrgencia;
     }
 }

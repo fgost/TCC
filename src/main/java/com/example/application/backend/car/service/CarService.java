@@ -53,6 +53,11 @@ public class CarService {
                 .orElseThrow(() -> new ObjectNotFoundException(Constants.CAR_NOT_FOUND));
     }
 
+    public CarEntity findById(Long code) {
+        return carRepository.findById(code)
+                .orElseThrow(() -> new ObjectNotFoundException(Constants.CAR_NOT_FOUND));
+    }
+
     public CarEntity findByLicensePlate(String licensePlate) {
         return carRepository.findByLicencePlate(licensePlate);
     }
@@ -67,7 +72,6 @@ public class CarService {
             var userDb = userRepositoryFront.findByEmail(user);
             carEntity.setUserOwner(userDb.getId());
             CarEntity savedCar = carRepository.save(carEntity);
-
             List<Integer> categoryIds = categoryRepository.findAllIds();
 
             for (Integer categoryId : categoryIds) {
@@ -124,5 +128,7 @@ public class CarService {
         }
     }
 
-
+    public void updateMileage(Long carId, Double carsMileage) {
+        carRepository.updateMileage(carId, carsMileage);
+    }
 }

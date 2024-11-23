@@ -1,4 +1,4 @@
-package com.example.application.backend.autoModel;
+package com.example.application.backend.autoModel.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,6 +40,14 @@ public class AutoModelEntity implements Serializable {
 
     public void setAutoModel(String autoModel) {
         this.autoModel = autoModel;
+    }
+
+    public void setAutoMaker(Long autoMaker) {
+        this.autoMaker = autoMaker;
+    }
+
+    public String getAutoModel() {
+        return this.autoModel;
     }
 
 }

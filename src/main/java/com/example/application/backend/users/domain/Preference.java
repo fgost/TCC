@@ -5,7 +5,6 @@ import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,5 +26,13 @@ public class Preference {
 
     public void setPreferenceValue(String preferenceValue) {
         this.preferenceValue = preferenceValue;
+    }
+
+    public @NotBlank String getPreferenceKey() {
+        return preferenceKey;
+    }
+
+    public @NotBlank String getPreferenceValue() {
+        return preferenceValue;
     }
 }

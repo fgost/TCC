@@ -42,7 +42,9 @@ public class SecurityConfig extends VaadinWebSecurity implements UserDetailsServ
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth.requestMatchers(new AntPathRequestMatcher("/login/**"))
+        http.authorizeHttpRequests(
+                auth -> auth.requestMatchers(
+                        new AntPathRequestMatcher("/login/**"))
                 .permitAll());
         super.configure(http);
         setLoginView(http, LoginView.class);
@@ -50,7 +52,6 @@ public class SecurityConfig extends VaadinWebSecurity implements UserDetailsServ
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        // Customize your WebSecurity configuration.
         super.configure(web);
     }
 

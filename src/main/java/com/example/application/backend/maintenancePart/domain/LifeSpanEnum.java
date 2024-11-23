@@ -7,26 +7,23 @@ import lombok.Getter;
 import java.util.Arrays;
 
 @Getter
-public enum MaintenancePartStatusEnum {
-    NEW((short) 0),
-    USED((short) 1),
-    HALF_LIFE((short) 2),
-    URGENT_REPLACEMENT((short) 3),
-    REPLACED((short) 4);
+public enum LifeSpanEnum {
+    KM((short) 0),
+    MES((short) 1),
+    ANO((short) 2),
+    DIA((short) 3);
 
     private final short value;
 
-    public static MaintenancePartStatusEnum fromValue(Short statusCode) {
-        var message = MessageResource.getInstance().getMessage("maintenance.part.status.invalid");
-        return Arrays.stream(MaintenancePartStatusEnum.values())
+    public static LifeSpanEnum fromValue(Short statusCode) {
+        var message = MessageResource.getInstance().getMessage("life.span.invalid");
+        return Arrays.stream(LifeSpanEnum.values())
                 .filter(it -> Short.valueOf(it.getValue()).equals(statusCode))
                 .findFirst()
                 .orElseThrow(() -> ExceptionUtils.buildBadRequestException(message));
     }
 
-    MaintenancePartStatusEnum(short value) {
+    LifeSpanEnum(short value) {
         this.value = value;
     }
-
 }
-

@@ -2,8 +2,9 @@ package com.example.application.views.cars;
 
 import com.example.application.backend.autoMaker.AutoMakerEntity;
 import com.example.application.backend.autoMaker.AutoMakerRepository;
-import com.example.application.backend.autoModel.AutoModelEntity;
-import com.example.application.backend.autoModel.AutoModelRepository;
+import com.example.application.backend.autoModel.domain.AutoModelEntity;
+import com.example.application.backend.autoModel.repository.AutoModelRepository;
+import com.example.application.backend.autoModel.service.AutoModelService;
 import com.example.application.backend.car.CarFacade;
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.domain.CarTypeEnum;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -48,7 +50,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
     private final CarFacade carFacade;
     private final SecurityConfig securityConfig;
 
-    public CreateCarView(CarFacade carFacade, SecurityConfig securityConfig, AutoMakerRepository autoMakerRepository, AutoModelRepository autoModelRepository) {
+    public CreateCarView(CarFacade carFacade, SecurityConfig securityConfig, AutoMakerRepository autoMakerRepository, AutoModelRepository autoModelRepository, AutoModelService autoModelService) {
         this.carFacade = carFacade;
         this.securityConfig = securityConfig;
 
@@ -89,7 +91,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
             if(autoMakerField.isEmpty()) {
                 autoMakerField.setValue(new AutoMakerEntity());
             }
-            AddAutoModelDialog addAutoModelDialog = new AddAutoModelDialog(autoMakerField.getValue().getAutoMaker());
+            AddAutoModelDialog addAutoModelDialog = new AddAutoModelDialog(autoMakerField.getValue().getAutoMaker(), autoModelService, autoMakerRepository);
             addAutoModelDialog.open();
         });
 

@@ -2,7 +2,9 @@ package com.example.application.views.maintenances;
 
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.repository.CarRepository;
+import com.example.application.backend.car.service.CarService;
 import com.example.application.backend.maintenancePart.MaintenancePartFacade;
+import com.example.application.backend.maintenancePart.domain.LifeSpanEnum;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
 import com.example.application.backend.type.domain.TypeEnum;
@@ -41,11 +43,16 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
     private final CarRepository carRepository;
     private final SecurityConfig securityConfig;
     private final UserRepositoryFront userRepositoryFront;
+    private final MaintenancePartFacade maintenancePartFacade;
 
-    public CreateMaintenancePartView(CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront, MaintenancePartFacade maintenancePartFacade) {
+    private final CarService carService;
+
+    public CreateMaintenancePartView(CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront, MaintenancePartFacade maintenancePartFacade, MaintenancePartFacade maintenancePartFacade1, CarService carService) {
         this.carRepository = carRepository;
         this.securityConfig = securityConfig;
         this.userRepositoryFront = userRepositoryFront;
+        this.maintenancePartFacade = maintenancePartFacade1;
+        this.carService = carService;
 
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setWidthFull();
@@ -61,6 +68,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         TextField modelField = new TextField("Model");
         DatePicker installationDatePicker = new DatePicker("Installation Date");
         TextField lifeSpanField = new TextField("Life Span");
+        ComboBox<LifeSpanEnum> lifeSpanType =  getLifeSpanEnumComboBox();
         TextField costField = new TextField("Cost");
 
         ComboBox<MaintenancePartStatusEnum> statusPartField = getMaintenancePartStatusEnumComboBox();
@@ -79,7 +87,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         TextField mileageField = new TextField("Mileage");
 
         ComboBox<CarEntity> carField = new ComboBox<>("Car");
-        List<CarEntity> cars = locateCars();  // Substitua isso pelo método que retorna suas entidades Car
+        List<CarEntity> cars = locateCars();
         carField.setItems(cars);
         carField.setItemLabelGenerator(CarEntity::getAutoMaker);
 
@@ -90,7 +98,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         saveButton.addClickListener(event -> {
             if (partNameField.isEmpty() || descriptionField.isEmpty() || serialNumberField.isEmpty() ||
                     manufacturerField.isEmpty() || modelField.isEmpty() || installationDatePicker.isEmpty() ||
-                    lifeSpanField.isEmpty() || costField.isEmpty() || statusPartField.isEmpty() ||
+                    lifeSpanField.isEmpty() || lifeSpanType.isEmpty() || costField.isEmpty() || statusPartField.isEmpty() ||
                     typeField.isEmpty() || mileageField.isEmpty() || carField.isEmpty()) {
                 Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
             } else {
@@ -101,12 +109,18 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
                 partEntity.setManufacturer(manufacturerField.getValue());
                 partEntity.setModel(modelField.getValue());
                 partEntity.setInstallationDate(installationDatePicker.getValue().toString());
-                partEntity.setLifeSpan(Integer.parseInt(lifeSpanField.getValue()));
+                partEntity.setLifeSpan(Double.parseDouble(lifeSpanField.getValue()));
+                partEntity.setLifeSpanType(lifeSpanType.getValue());
                 partEntity.setCost(Double.parseDouble(costField.getValue()));
                 partEntity.setStatus(statusPartField.getValue());
                 partEntity.setType(typeField.getValue());
                 partEntity.setCar(carField.getValue().getId());
 
+                var mileageUpdated = Double.parseDouble(mileageField.getValue());
+                var car = carField.getValue();
+                car.setMileage(mileageUpdated);
+
+                carService.update(car.getCode(), car);
                 maintenancePartFacade.insert(partEntity);
 
                 Notification.show("Maintenance Registered successfully!", 3000, Notification.Position.TOP_CENTER);
@@ -123,6 +137,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
             modelField.clear();
             installationDatePicker.clear();
             lifeSpanField.clear();
+            lifeSpanType.clear();
             costField.clear();
             statusPartField.clear();
             typeField.clear();
@@ -131,7 +146,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         });
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(partNameField, descriptionField, serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, costField, statusPartField, typeField, mileageField, carField);
+        formLayout.add(partNameField, descriptionField, serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, lifeSpanType, costField, statusPartField, typeField, mileageField, carField);
         formLayout.setResponsiveSteps(
                 // Use one column by default
                 new FormLayout.ResponsiveStep("0", 1),
@@ -162,6 +177,10 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
             return itemStatus.toString();
         });
         return statusPartField;
+    }
+
+    private static ComboBox<LifeSpanEnum> getLifeSpanEnumComboBox() {
+        return new ComboBox<>("Life Span Type", Arrays.asList(LifeSpanEnum.values()));
     }
 
     private List<CarEntity> locateCars() {

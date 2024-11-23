@@ -7,6 +7,7 @@ import com.example.application.views.maintenances.CreateMaintenancePartView;
 import com.example.application.views.logout.LogoutView;
 import com.example.application.views.main.MainView;
 import com.example.application.views.maintenances.ManageMaintenanceView;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -33,14 +34,13 @@ public class MainLayout extends AppLayout {
         addHeaderContent();
 
     }
-
     private void addHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
         toggle.setAriaLabel("Menu toggle");
         viewTitle = new H2();
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        var user = securityConfig.getAuthenticatedUser();
+        String user = securityConfig.getAuthenticatedUser();
 
         Notification.show("Welcome " + user, 3000, Notification.Position.TOP_CENTER);
 

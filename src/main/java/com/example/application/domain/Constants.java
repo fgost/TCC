@@ -5,6 +5,11 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Constants {
+    //AUTO MODEL
+    public static final String AUTO_MODEL_NOT_FOUND = "auto_model.not.found";
+    public static final String AUTO_MODEL_DUPLICATED = "auto_model.duplicated";
+    public static final String AUTO_MODEL_NOT_PERSISTED = "auto_model.not.persisted";
+    public static final String AUTO_MODEL_DELETION_ERROR = "auto_model.deletion.error";
     //USERS
     public static final String USER_NOT_FOUND = "user.not.found";
     public static final String USER_NOT_PERSISTED = "user.not.persisted";
@@ -47,4 +52,7 @@ public class Constants {
     public static final String TYPE_DUPLICATED = "type.duplicated";
     public static final String TYPE_NOT_PERSISTED = "type.not.persisted";
     public static final String TYPE_DELETION_ERROR = "type.deletion.error";
+
+    //PART
+    public static final String PART_NOT_FOUND = "part.not.found";
 }
