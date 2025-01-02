@@ -3,6 +3,7 @@ package com.example.application.backend.autoModel.service;
 import com.example.application.backend.autoModel.domain.AutoModelEntity;
 import com.example.application.backend.autoModel.repository.AutoModelRepository;
 import com.example.application.domain.Constants;
+import com.example.application.exception.domain.ObjectNotFoundException;
 import com.example.application.exception.util.ExceptionUtils;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 @Service
 public class AutoModelService {
     private final AutoModelRepository autoModelRepository;
-    private AutoModelRepository autoModelRepository;
 
     public List<AutoModelEntity> findAll(Long carMaker) {
         boolean hasCarMaker = carMaker != null;

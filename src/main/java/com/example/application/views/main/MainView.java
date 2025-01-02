@@ -51,381 +51,371 @@ public class MainView extends VerticalLayout {
 
     private CarEntity selectedCar;
 
-    public MainView(MaintenancePartRepository maintenancePartRepository, MaintenancePartService maintenancePartService, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront) {
-    public
-        MainView(AutoModelService autoModelService, MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront)
-        {
-            this.maintenancePartRepository = maintenancePartRepository;
-            this.maintenancePartService = maintenancePartService;
-            this.carRepository = carRepository;
-            this.securityConfig = securityConfig;
-            this.userRepositoryFront = userRepositoryFront;
-            this.autoModelService = autoModelService;
+    public MainView(AutoModelService autoModelService, MaintenancePartRepository maintenancePartRepository, MaintenancePartService maintenancePartService, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront) {
+        this.maintenancePartRepository = maintenancePartRepository;
+        this.maintenancePartService = maintenancePartService;
+        this.carRepository = carRepository;
+        this.securityConfig = securityConfig;
+        this.userRepositoryFront = userRepositoryFront;
+        this.autoModelService = autoModelService;
 
-            addClassName("list-view");
-            setSizeFull();
+        addClassName("list-view");
+        setSizeFull();
 
-            autoModelService.verificarDuplicidade();
+        autoModelService.verificarDuplicidade();
 
-            partsGrid.removeAllColumns();
-            partsGrid.addColumn(MaintenancePartEntity::getName).setHeader("Name");
-            partsGrid.addColumn(maintenancePart -> "CRITICAL")
-                    .setHeader("Status");
-            partsGrid.addComponentColumn(maintenancePart -> {
-                Map<String, Double> averageCostByPartName = calculateAverageCostByPartName(loadAllMaintenanceParts());
-                return new Text(String.valueOf(averageCostByPartName.getOrDefault(maintenancePart.getName(), 0.0)));
-            }).setHeader("Average Cost");
+        partsGrid.removeAllColumns();
+        partsGrid.addColumn(MaintenancePartEntity::getName).setHeader("Name");
+        partsGrid.addColumn(maintenancePart -> "CRITICAL")
+                .setHeader("Status");
+        partsGrid.addComponentColumn(maintenancePart -> {
+            Map<String, Double> averageCostByPartName = calculateAverageCostByPartName(loadAllMaintenanceParts());
+            return new Text(String.valueOf(averageCostByPartName.getOrDefault(maintenancePart.getName(), 0.0)));
+        }).setHeader("Average Cost");
 
-            List<String> licencePlates = locateLicencePlates();
-            ComboBox<String> licencePlateComboBox = new ComboBox<>("Licence Plate");
-            licencePlateComboBox.setItemLabelGenerator(licencePlate -> licencePlate);
+        List<String> licencePlates = locateLicencePlates();
+        ComboBox<String> licencePlateComboBox = new ComboBox<>("Licence Plate");
+        licencePlateComboBox.setItemLabelGenerator(licencePlate -> licencePlate);
 
-            licencePlateComboBox.setItems(licencePlates);
-            if (!licencePlates.isEmpty()) {
-                licencePlateComboBox.setValue(licencePlates.get(0));
+        licencePlateComboBox.setItems(licencePlates);
+        if (!licencePlates.isEmpty()) {
+            licencePlateComboBox.setValue(licencePlates.get(0));
+        }
+
+        licencePlateComboBox.addValueChangeListener(event -> {
+            String selectedLicencePlate = event.getValue();
+            if (selectedLicencePlate != null) {
+                loadMaintenancePartsForLicencePlate(selectedLicencePlate);
             }
+        });
 
-            licencePlateComboBox.addValueChangeListener(event -> {
-                String selectedLicencePlate = event.getValue();
-                if (selectedLicencePlate != null) {
-                    loadMaintenancePartsForLicencePlate(selectedLicencePlate);
+        if (!licencePlates.isEmpty()) {
+            loadMaintenancePartsForLicencePlate(licencePlates.get(0));
+        }
+
+        carsGrid.removeAllColumns();
+
+        HorizontalLayout carsLayout = new HorizontalLayout();
+        carsLayout.setWidthFull();
+
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
+
+        cars.sort(Comparator.comparing(CarEntity::getCarModel));
+
+        ComboBox<CarEntity> carSelectionComboBox = new ComboBox<>("Model");
+        carSelectionComboBox.setItemLabelGenerator(CarEntity::getCarModel);
+        carSelectionComboBox.setItems(cars);
+
+        if (!cars.isEmpty()) {
+            carSelectionComboBox.setValue(cars.get(0));
+        }
+
+        carSelectionComboBox.addValueChangeListener(event -> {
+            CarEntity selectedCar = event.getValue();
+            if (selectedCar != null) {
+                loadMaintenancePartsForCar(selectedCar);
+            }
+        });
+
+        partsGrid.addComponentColumn(maintenancePart -> {
+            Button maintenanceButton = new Button();
+            maintenanceButton.setIcon(VaadinIcon.COG.create());
+            maintenanceButton.addClickListener(event -> {
+                String licensePlate = licencePlateComboBox.getValue();
+                if (!licensePlate.isEmpty()) {
+                    Dialog dialog = new Dialog();
+                    dialog.setModal(true);
+                    dialog.setHeaderTitle("Registrar Manutenção");
+
+                    TextField nameField = new TextField("Nome da Peça");
+                    nameField.setValue(maintenancePart.getName());
+                    nameField.setEnabled(false);
+
+                    TextField descriptionField = new TextField("Descrição");
+                    descriptionField.setValue(maintenancePart.getDescription());
+                    descriptionField.setEnabled(false);
+
+                    ComboBox<TypeEnum> typeField = new ComboBox<>("Type");
+                    typeField.setItems(TypeEnum.values());
+                    typeField.setValue(maintenancePart.getType());
+
+                    TextField serialNumberField = new TextField("Número de Série");
+                    serialNumberField.setValue(maintenancePart.getSerialNumber());
+
+                    TextField manufacturerField = new TextField("Fabricante");
+                    manufacturerField.setValue(maintenancePart.getManufacturer());
+
+                    TextField modelField = new TextField("Modelo");
+                    modelField.setValue(maintenancePart.getModel());
+
+                    DatePicker installationDatePicker = new DatePicker("Installation Date");
+                    installationDatePicker.setValue(LocalDate.parse(maintenancePart.getInstallationDate()));
+
+                    TextField lifeSpanField = new TextField("Vida Útil");
+                    lifeSpanField.setValue(String.valueOf(maintenancePart.getLifeSpan()));
+
+                    ComboBox<LifeSpanEnum> lifeSpanTypeField = new ComboBox<>("Tipo de Vida Útil");
+                    lifeSpanTypeField.setItems(LifeSpanEnum.values());
+                    lifeSpanTypeField.setValue(maintenancePart.getLifeSpanType());
+
+                    ComboBox<MaintenancePartStatusEnum> statusPartField = getMaintenancePartStatusEnumComboBox();
+                    statusPartField.setValue(MaintenancePartStatusEnum.NEW);
+
+                    TextField costField = new TextField("Valor Gasto");
+                    costField.setValue(String.valueOf(maintenancePart.getCost()));
+                    costField.setRequired(true);
+
+                    TextField carsMileage = new TextField("car KM");
+                    carsMileage.setValue(String.valueOf(carSelectionComboBox.getValue().getMileage()));
+                    carsMileage.setRequired(true);
+
+                    String code = maintenancePart.getCode();
+
+                    Button saveButton = new Button("Salvar", eventSave -> {
+                        MaintenancePartEntity maintenance = new MaintenancePartEntity();
+                        maintenance.setLifeSpanType(lifeSpanTypeField.getValue());
+                        maintenance.setLifeSpan(Double.parseDouble(lifeSpanField.getValue()));
+                        maintenance.setCost(Double.parseDouble(costField.getValue()));
+                        maintenance.setDescription(descriptionField.getValue());
+                        maintenance.setInstallationDate(installationDatePicker.getValue().toString());
+                        maintenance.setManufacturer(manufacturerField.getValue());
+                        maintenance.setModel(modelField.getValue());
+                        maintenance.setType(typeField.getValue());
+                        maintenance.setSerialNumber(serialNumberField.getValue());
+                        maintenance.setName(nameField.getValue());
+                        maintenance.setStatus(statusPartField.getValue());
+
+                        String carMileage = carsMileage.toString();
+
+                        maintenancePartService.processarManutencao(maintenance, code, licensePlate, carMileage);
+                        Notification.show("Manutenção salva para a peça: " + maintenancePart.getName());
+                        dialog.close();
+                    });
+
+                    Button cancelButton = new Button("Cancelar", eventCancel -> {
+                        dialog.close();
+                    });
+
+                    VerticalLayout layout = new VerticalLayout(nameField, descriptionField, typeField,
+                            serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, lifeSpanTypeField,
+                            statusPartField, costField, carsMileage,
+                            saveButton, cancelButton);
+                    layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+
+                    dialog.add(layout);
+                    dialog.open();
+                } else {
+                    Notification.show("Por favor, selecione um carro antes de realizar a manutenção.");
                 }
             });
+            return maintenanceButton;
+        }).setHeader("Action");
 
-            if (!licencePlates.isEmpty()) {
-                loadMaintenancePartsForLicencePlate(licencePlates.get(0));
+        carsLayout.add(carSelectionComboBox);
+        carsLayout.add(licencePlateComboBox);
+
+        if (!cars.isEmpty()) {
+            loadMaintenancePartsForCar(cars.get(0));
+        }
+
+        add(carsLayout, new H3("Maintenance Parts"), partsGrid);
+
+        carsGrid.asSingleSelect().addValueChangeListener(event -> {
+            selectedCar = event.getValue();
+            if (selectedCar != null) {
+                carSelectionComboBox.setValue(selectedCar);
+                licencePlateComboBox.setValue(selectedCar.getLicencePlate());
+                loadMaintenancePartsForCar(selectedCar);
             }
+        });
 
-            carsGrid.removeAllColumns();
+        loadCarsData();
+        askForUpdateMileageCars();
+    }
 
-            HorizontalLayout carsLayout = new HorizontalLayout();
-            carsLayout.setWidthFull();
-
-            List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
-
-            cars.sort(Comparator.comparing(CarEntity::getCarModel));
-
-            ComboBox<CarEntity> carSelectionComboBox = new ComboBox<>("Model");
-            carSelectionComboBox.setItemLabelGenerator(CarEntity::getCarModel);
-            carSelectionComboBox.setItems(cars);
-
-            if (!cars.isEmpty()) {
-                carSelectionComboBox.setValue(cars.get(0));
+    private static ComboBox<MaintenancePartStatusEnum> getMaintenancePartStatusEnumComboBox() {
+        ComboBox<MaintenancePartStatusEnum> statusPartField = new ComboBox<>("Status Part", Arrays.asList(MaintenancePartStatusEnum.values()));
+        statusPartField.setItemLabelGenerator(itemStatus -> {
+            if (Objects.requireNonNull(itemStatus) == MaintenancePartStatusEnum.URGENT_REPLACEMENT) {
+                return "URGENT REPLACEMENT";
             }
-
-            carSelectionComboBox.addValueChangeListener(event -> {
-                CarEntity selectedCar = event.getValue();
-                if (selectedCar != null) {
-                    loadMaintenancePartsForCar(selectedCar);
-                }
-            });
-
-            partsGrid.addComponentColumn(maintenancePart -> {
-                Button maintenanceButton = new Button();
-                maintenanceButton.setIcon(VaadinIcon.COG.create());
-                maintenanceButton.addClickListener(event -> {
-                    String licensePlate = licencePlateComboBox.getValue();
-                    if (!licensePlate.isEmpty()) {
-                        Dialog dialog = new Dialog();
-                        dialog.setModal(true);
-                        dialog.setHeaderTitle("Registrar Manutenção");
-
-                        TextField nameField = new TextField("Nome da Peça");
-                        nameField.setValue(maintenancePart.getName());
-                        nameField.setEnabled(false);
-
-                        TextField descriptionField = new TextField("Descrição");
-                        descriptionField.setValue(maintenancePart.getDescription());
-                        descriptionField.setEnabled(false);
-
-                        ComboBox<TypeEnum> typeField = new ComboBox<>("Type");
-                        typeField.setItems(TypeEnum.values());
-                        typeField.setValue(maintenancePart.getType());
-
-                        TextField serialNumberField = new TextField("Número de Série");
-                        serialNumberField.setValue(maintenancePart.getSerialNumber());
-
-                        TextField manufacturerField = new TextField("Fabricante");
-                        manufacturerField.setValue(maintenancePart.getManufacturer());
-
-                        TextField modelField = new TextField("Modelo");
-                        modelField.setValue(maintenancePart.getModel());
-
-                        DatePicker installationDatePicker = new DatePicker("Installation Date");
-                        installationDatePicker.setValue(LocalDate.parse(maintenancePart.getInstallationDate()));
-
-                        TextField lifeSpanField = new TextField("Vida Útil");
-                        lifeSpanField.setValue(String.valueOf(maintenancePart.getLifeSpan()));
-
-                        ComboBox<LifeSpanEnum> lifeSpanTypeField = new ComboBox<>("Tipo de Vida Útil");
-                        lifeSpanTypeField.setItems(LifeSpanEnum.values());
-                        lifeSpanTypeField.setValue(maintenancePart.getLifeSpanType());
-
-                        ComboBox<MaintenancePartStatusEnum> statusPartField = getMaintenancePartStatusEnumComboBox();
-                        statusPartField.setValue(MaintenancePartStatusEnum.NEW);
-
-                        TextField costField = new TextField("Valor Gasto");
-                        costField.setValue(String.valueOf(maintenancePart.getCost()));
-                        costField.setRequired(true);
-
-                        TextField carsMileage = new TextField("car KM");
-                        carsMileage.setValue(String.valueOf(carSelectionComboBox.getValue().getMileage()));
-                        carsMileage.setRequired(true);
-
-                        String code = maintenancePart.getCode();
-
-                        Button saveButton = new Button("Salvar", eventSave -> {
-                            MaintenancePartEntity maintenance = new MaintenancePartEntity();
-                            maintenance.setLifeSpanType(lifeSpanTypeField.getValue());
-                            maintenance.setLifeSpan(Double.parseDouble(lifeSpanField.getValue()));
-                            maintenance.setCost(Double.parseDouble(costField.getValue()));
-                            maintenance.setDescription(descriptionField.getValue());
-                            maintenance.setInstallationDate(installationDatePicker.getValue().toString());
-                            maintenance.setManufacturer(manufacturerField.getValue());
-                            maintenance.setModel(modelField.getValue());
-                            maintenance.setType(typeField.getValue());
-                            maintenance.setSerialNumber(serialNumberField.getValue());
-                            maintenance.setName(nameField.getValue());
-                            maintenance.setStatus(statusPartField.getValue());
-
-                            String carMileage = carsMileage.toString();
-
-                            maintenancePartService.processarManutencao(maintenance, code, licensePlate, carMileage);
-                            Notification.show("Manutenção salva para a peça: " + maintenancePart.getName());
-                            dialog.close();
-                        });
-
-                        Button cancelButton = new Button("Cancelar", eventCancel -> {
-                            dialog.close();
-                        });
-
-                        VerticalLayout layout = new VerticalLayout(nameField, descriptionField, typeField,
-                                serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, lifeSpanTypeField,
-                                statusPartField, costField, carsMileage,
-                                saveButton, cancelButton);
-                        layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-
-                        dialog.add(layout);
-                        dialog.open();
-                    } else {
-                        Notification.show("Por favor, selecione um carro antes de realizar a manutenção.");
-                    }
-                });
-                return maintenanceButton;
-            }).setHeader("Action");
-
-
-            carsGrid.removeAllColumns();
-
-            HorizontalLayout carsLayout = new HorizontalLayout();
-            carsLayout.setWidthFull();
-
-
-            carsLayout.add(carSelectionComboBox);
-            carsLayout.add(licencePlateComboBox);
-
-            if (!cars.isEmpty()) {
-                loadMaintenancePartsForCar(cars.get(0));
+            if (Objects.requireNonNull(itemStatus) == MaintenancePartStatusEnum.HALF_LIFE) {
+                return "HALF LIFE";
             }
+            return itemStatus.toString();
+        });
+        return statusPartField;
+    }
 
-            add(carsLayout, new H3("Maintenance Parts"), partsGrid);
+    private void realizarManutencao(MaintenancePartEntity maintenancePart) {
+        // Lógica para realizar a manutenção
+        Notification.show("Manutenção realizada para a peça: " + maintenancePart.getName());
+    }
 
-            carsGrid.asSingleSelect().addValueChangeListener(event -> {
-                selectedCar = event.getValue();
-                if (selectedCar != null) {
-                    carSelectionComboBox.setValue(selectedCar);
-                    licencePlateComboBox.setValue(selectedCar.getLicencePlate());
-                    loadMaintenancePartsForCar(selectedCar);
-                }
-            });
 
-            loadCarsData();
-            askForUpdateMileageCars();
+    private List<MaintenancePartEntity> loadAllMaintenanceParts() {
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
+        List<MaintenancePartEntity> allMaintenanceParts = new ArrayList<>();
+
+        for (CarEntity car : cars) {
+            allMaintenanceParts.addAll(maintenancePartRepository.findByCar(car.getId()));
         }
 
-        private static ComboBox<MaintenancePartStatusEnum> getMaintenancePartStatusEnumComboBox () {
-            ComboBox<MaintenancePartStatusEnum> statusPartField = new ComboBox<>("Status Part", Arrays.asList(MaintenancePartStatusEnum.values()));
-            statusPartField.setItemLabelGenerator(itemStatus -> {
-                if (Objects.requireNonNull(itemStatus) == MaintenancePartStatusEnum.URGENT_REPLACEMENT) {
-                    return "URGENT REPLACEMENT";
-                }
-                if (Objects.requireNonNull(itemStatus) == MaintenancePartStatusEnum.HALF_LIFE) {
-                    return "HALF LIFE";
-                }
-                return itemStatus.toString();
-            });
-            return statusPartField;
+        return allMaintenanceParts;
+    }
+
+    private Map<String, Double> calculateAverageCostByPartName(List<MaintenancePartEntity> maintenanceParts) {
+        if (maintenanceParts.isEmpty()) {
+            return Collections.emptyMap();
         }
 
-        private void realizarManutencao (MaintenancePartEntity maintenancePart){
-            // Lógica para realizar a manutenção
-            Notification.show("Manutenção realizada para a peça: " + maintenancePart.getName());
+        Map<String, List<MaintenancePartEntity>> partsByName = maintenanceParts.stream()
+                .collect(Collectors.groupingBy(MaintenancePartEntity::getName));
+
+        return partsByName.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> calculateAverageCost(entry.getValue())
+                ));
+    }
+
+    private Double calculateAverageCost(List<MaintenancePartEntity> maintenanceParts) {
+        if (maintenanceParts.isEmpty()) {
+            return 0.0;
         }
 
+        double totalCost = maintenanceParts.stream()
+                .mapToDouble(MaintenancePartEntity::getCost)
+                .sum();
 
-        private List<MaintenancePartEntity> loadAllMaintenanceParts () {
-            List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
-            List<MaintenancePartEntity> allMaintenanceParts = new ArrayList<>();
+        return totalCost / maintenanceParts.size();
+    }
 
-            for (CarEntity car : cars) {
-                allMaintenanceParts.addAll(maintenancePartRepository.findByCar(car.getId()));
-            }
+    private void loadMaintenancePartsForLicencePlate(String licencePlate) {
+        CarEntity carEntity = carRepository.findByLicencePlate(licencePlate);
+        selectedCar = carEntity;
+        List<MaintenancePartEntity> maintenanceParts = loadMaintenancePartsForCar(carEntity);
+        partsGrid.setItems(maintenanceParts);
 
-            return allMaintenanceParts;
+        carsGrid.asSingleSelect().setValue(carEntity);
+    }
+
+    private List<MaintenancePartEntity> loadMaintenancePartsForCar(CarEntity carEntity) {
+        selectedCar = carEntity;
+        maintenancePartService.ajustarStatusManutencoes(carEntity);
+        List<MaintenancePartEntity> maintenanceParts = maintenancePartRepository.findByCarAndStatus(carEntity.getId(), MaintenancePartStatusEnum.URGENT_REPLACEMENT);
+        partsGrid.setItems(maintenanceParts);
+        carsGrid.asSingleSelect().setValue(carEntity);
+        return maintenanceParts;
+    }
+
+    private List<String> locateLicencePlates() {
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
+
+        return cars.stream().map(CarEntity::getLicencePlate).sorted()
+                .collect(Collectors.toList());
+    }
+
+    private void askForUpdateMileageCars() {
+        Date currentDate = new Date();
+        UserEntity currentUser = userRepositoryFront.findByEmail(securityConfig.getAuthenticatedUser());
+        Date createdAt = currentUser.getCreatedAt();
+        Long lastUpdateMileage = currentUser.getLastUpdateMileage();
+        long differenceLastUpdate = System.currentTimeMillis() - lastUpdateMileage;
+        Long lastAskForUpdate = currentUser.getLastAskForUpdateMileage();
+        long differenceLastAskUpdate = lastUpdateMileage - lastAskForUpdate;
+        if (carsGrid.getDataProvider().size(new Query<>()) > 0
+                && createdAt != null
+                && (createdAt.getTime() - currentDate.getTime()) > (0)
+                && differenceLastUpdate > (70)
+                && differenceLastAskUpdate > (70)) {
+            showMessageToUpdateTheMileageCars();
         }
+    }
 
-        private Map<String, Double> calculateAverageCostByPartName (List < MaintenancePartEntity > maintenanceParts) {
-            if (maintenanceParts.isEmpty()) {
-                return Collections.emptyMap();
-            }
+    private void showMessageToUpdateTheMileageCars() {
+        Dialog dialog = new Dialog();
+        dialog.setModal(true);
+        dialog.setHeaderTitle("Updating your car's mileage enhances your experience.");
 
-            Map<String, List<MaintenancePartEntity>> partsByName = maintenanceParts.stream()
-                    .collect(Collectors.groupingBy(MaintenancePartEntity::getName));
+        VerticalLayout layout = new VerticalLayout(
+                new Text("Would you like to update it?"),
+                new Button("Yes", event -> {
+                    updateMileageCars();
+                    dialog.close();
 
-            return partsByName.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            entry -> calculateAverageCost(entry.getValue())
-                    ));
-        }
+                }), new Button("Cancel", event -> {
+            registerNonUpdateMileage();
+            dialog.close();
+        }));
+        layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
 
-        private Double calculateAverageCost (List < MaintenancePartEntity > maintenanceParts) {
-            if (maintenanceParts.isEmpty()) {
-                return 0.0;
-            }
+        dialog.add(layout);
+        dialog.open();
+    }
 
-            double totalCost = maintenanceParts.stream()
-                    .mapToDouble(MaintenancePartEntity::getCost)
-                    .sum();
-
-            return totalCost / maintenanceParts.size();
-        }
-
-        private void loadMaintenancePartsForLicencePlate (String licencePlate){
-            CarEntity carEntity = carRepository.findByLicencePlate(licencePlate);
-            selectedCar = carEntity;
-            List<MaintenancePartEntity> maintenanceParts = loadMaintenancePartsForCar(carEntity);
-            partsGrid.setItems(maintenanceParts);
-
-            carsGrid.asSingleSelect().setValue(carEntity);
-        }
-
-        private List<MaintenancePartEntity> loadMaintenancePartsForCar (CarEntity carEntity){
-            selectedCar = carEntity;
-            maintenancePartService.ajustarStatusManutencoes(carEntity);
-            List<MaintenancePartEntity> maintenanceParts = maintenancePartRepository.findByCarAndStatus(carEntity.getId(), MaintenancePartStatusEnum.URGENT_REPLACEMENT);
-            partsGrid.setItems(maintenanceParts);
-            carsGrid.asSingleSelect().setValue(carEntity);
-            return maintenanceParts;
-        }
-
-        private List<String> locateLicencePlates () {
-            List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
-
-            return cars.stream().map(CarEntity::getLicencePlate).sorted()
-                    .collect(Collectors.toList());
-        }
-
-        private void askForUpdateMileageCars () {
-            Date currentDate = new Date();
-            UserEntity currentUser = userRepositoryFront.findByEmail(securityConfig.getAuthenticatedUser());
-            Date createdAt = currentUser.getCreatedAt();
-            Long lastUpdateMileage = currentUser.getLastUpdateMileage();
-            long differenceLastUpdate = System.currentTimeMillis() - lastUpdateMileage;
-            Long lastAskForUpdate = currentUser.getLastAskForUpdateMileage();
-            long differenceLastAskUpdate = lastUpdateMileage - lastAskForUpdate;
-            if (carsGrid.getDataProvider().size(new Query<>()) > 0
-                    && createdAt != null
-                    && (createdAt.getTime() - currentDate.getTime()) > (0)
-                    && differenceLastUpdate > (70)
-                    && differenceLastAskUpdate > (70)) {
-                showMessageToUpdateTheMileageCars();
-            }
-        }
-
-        private void showMessageToUpdateTheMileageCars () {
+    private void updateMileageCars() {
+        var carEntity = carRepository.findByUserOwner(getAuthenticatedUser().getId());
+        for (CarEntity cars : carEntity) {
             Dialog dialog = new Dialog();
             dialog.setModal(true);
-            dialog.setHeaderTitle("Updating your car's mileage enhances your experience.");
 
-            VerticalLayout layout = new VerticalLayout(
-                    new Text("Would you like to update it?"),
-                    new Button("Yes", event -> {
-                        updateMileageCars();
-                        dialog.close();
+            TextField carNameField = new TextField("Car");
+            carNameField.setValue(String.valueOf(cars.getCarModel()));
+            carNameField.setEnabled(false);
 
-                    }), new Button("Cancel", event -> {
-                registerNonUpdateMileage();
-                dialog.close();
-            }));
-            layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
+            TextField carMileageField = new TextField("Mileage");
+            carMileageField.setValue(String.valueOf(cars.getMileage()));
+
+            VerticalLayout layout = getVerticalLayout(cars, carMileageField, carNameField, dialog);
 
             dialog.add(layout);
             dialog.open();
         }
-
-        private void updateMileageCars () {
-            var carEntity = carRepository.findByUserOwner(getAuthenticatedUser().getId());
-            for (CarEntity cars : carEntity) {
-                Dialog dialog = new Dialog();
-                dialog.setModal(true);
-
-                TextField carNameField = new TextField("Car");
-                carNameField.setValue(String.valueOf(cars.getCarModel()));
-                carNameField.setEnabled(false);
-
-                TextField carMileageField = new TextField("Mileage");
-                carMileageField.setValue(String.valueOf(cars.getMileage()));
-
-                VerticalLayout layout = getVerticalLayout(cars, carMileageField, carNameField, dialog);
-
-                dialog.add(layout);
-                dialog.open();
-            }
-        }
-
-        private VerticalLayout getVerticalLayout (CarEntity cars, TextField carMileageField, TextField
-        carNameField, Dialog dialog){
-            VerticalLayout layout = new VerticalLayout(carNameField, carMileageField, new Button("Save", event -> {
-                CarEntity editedCar = new CarEntity();
-                editedCar.setMileage(Double.parseDouble(carMileageField.getValue()));
-                editedCar.setCarModel(cars.getCarModel());
-                editedCar.setYear(cars.getYear());
-                editedCar.setAutoMaker(cars.getAutoMaker());
-                editedCar.setColor(cars.getColor());
-                editedCar.setType(cars.getType());
-                dialog.close();
-            }), new Button("Cancel", event -> {
-                dialog.close();
-                registerNonUpdateMileage();
-            }));
-            layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-            return layout;
-        }
-
-        private void registerNonUpdateMileage () {
-            updateLastAskForUpdateMileage();
-        }
-
-        private void loadCarsData () {
-            List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
-            carsGrid.setItems(cars);
-        }
-
-        private UserEntity getAuthenticatedUser () {
-            var user = this.securityConfig.getAuthenticatedUser();
-            return userRepositoryFront.findByEmail(user);
-        }
-
-        private void updateLastAskForUpdateMileage () {
-            String currentUser = securityConfig.getAuthenticatedUser();
-            UserEntity user = userRepositoryFront.findByEmail(currentUser);
-            user.setName(user.getName());
-            user.setLastName(user.getLastName());
-            user.setEmail(user.getEmail());
-            user.setPassword(user.getPassword());
-            user.setLastUpdateMileage(user.getLastUpdateMileage());
-            user.setLastAskForUpdateMileage(System.currentTimeMillis());
-            userRepositoryFront.save(user);
-        }
     }
+
+    private VerticalLayout getVerticalLayout(CarEntity cars, TextField carMileageField, TextField
+            carNameField, Dialog dialog) {
+        VerticalLayout layout = new VerticalLayout(carNameField, carMileageField, new Button("Save", event -> {
+            CarEntity editedCar = new CarEntity();
+            editedCar.setMileage(Double.parseDouble(carMileageField.getValue()));
+            editedCar.setCarModel(cars.getCarModel());
+            editedCar.setYear(cars.getYear());
+            editedCar.setAutoMaker(cars.getAutoMaker());
+            editedCar.setColor(cars.getColor());
+            editedCar.setType(cars.getType());
+            dialog.close();
+        }), new Button("Cancel", event -> {
+            dialog.close();
+            registerNonUpdateMileage();
+        }));
+        layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        return layout;
+    }
+
+    private void registerNonUpdateMileage() {
+        updateLastAskForUpdateMileage();
+    }
+
+    private void loadCarsData() {
+        List<CarEntity> cars = carRepository.findByUserOwner(getAuthenticatedUser().getId());
+        carsGrid.setItems(cars);
+    }
+
+    private UserEntity getAuthenticatedUser() {
+        var user = this.securityConfig.getAuthenticatedUser();
+        return userRepositoryFront.findByEmail(user);
+    }
+
+    private void updateLastAskForUpdateMileage() {
+        String currentUser = securityConfig.getAuthenticatedUser();
+        UserEntity user = userRepositoryFront.findByEmail(currentUser);
+        user.setName(user.getName());
+        user.setLastName(user.getLastName());
+        user.setEmail(user.getEmail());
+        user.setPassword(user.getPassword());
+        user.setLastUpdateMileage(user.getLastUpdateMileage());
+        user.setLastAskForUpdateMileage(System.currentTimeMillis());
+        userRepositoryFront.save(user);
+    }
+}

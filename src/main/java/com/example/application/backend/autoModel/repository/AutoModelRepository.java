@@ -10,7 +10,5 @@ public interface AutoModelRepository extends JpaRepository<AutoModelEntity, Long
 
     List<AutoModelEntity> findByAutoMaker(long autoMaker);
 
-    List<AutoModelEntity> findByAutoMakerContainingIgnoreCase(String autoMaker);
-
     Optional<AutoModelEntity> findByCode(String code);
 }

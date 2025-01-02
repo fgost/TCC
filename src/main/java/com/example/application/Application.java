@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
  */
 @SpringBootApplication(exclude = ErrorMvcAutoConfiguration.class)
 @Theme(value = "my-app", variant = Lumo.DARK)
-@PWA(name = "Carview", shortName = "Carview")
 @PWA(
         name = "CarView",
         shortName = "CarView",
