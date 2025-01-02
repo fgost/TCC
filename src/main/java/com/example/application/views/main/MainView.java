@@ -1,5 +1,6 @@
 package com.example.application.views.main;
 
+import com.example.application.backend.autoModel.service.AutoModelService;
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.repository.CarRepository;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
@@ -38,17 +39,21 @@ public class MainView extends VerticalLayout {
     private final CarRepository carRepository;
     private final SecurityConfig securityConfig;
     private final UserRepositoryFront userRepositoryFront;
+    private final AutoModelService autoModelService;
 
     private CarEntity selectedCar;
 
-    public MainView(MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront) {
+    public MainView(AutoModelService autoModelService, MaintenancePartRepository maintenancePartRepository, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront) {
         this.maintenancePartRepository = maintenancePartRepository;
         this.carRepository = carRepository;
         this.securityConfig = securityConfig;
         this.userRepositoryFront = userRepositoryFront;
+        this.autoModelService = autoModelService;
 
         addClassName("list-view");
         setSizeFull();
+
+        autoModelService.verificarDuplicidade();
 
         partsGrid.removeAllColumns();
         partsGrid.addColumn(MaintenancePartEntity::getName).setHeader("Name");
@@ -64,7 +69,7 @@ public class MainView extends VerticalLayout {
         licencePlateComboBox.setItemLabelGenerator(licencePlate -> licencePlate);
 
         licencePlateComboBox.setItems(licencePlates);
-        if(!licencePlates.isEmpty()) {
+        if (!licencePlates.isEmpty()) {
             licencePlateComboBox.setValue(licencePlates.get(0));
         }
 
@@ -92,7 +97,7 @@ public class MainView extends VerticalLayout {
         carSelectionComboBox.setItemLabelGenerator(CarEntity::getCarModel);
         carSelectionComboBox.setItems(cars);
 
-        if(!cars.isEmpty()) {
+        if (!cars.isEmpty()) {
             carSelectionComboBox.setValue(cars.get(0));
         }
 
@@ -106,7 +111,7 @@ public class MainView extends VerticalLayout {
         carsLayout.add(carSelectionComboBox);
         carsLayout.add(licencePlateComboBox);
 
-        if(!cars.isEmpty()) {
+        if (!cars.isEmpty()) {
             loadMaintenancePartsForCar(cars.get(0));
         }
 

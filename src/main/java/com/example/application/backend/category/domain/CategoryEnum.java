@@ -24,7 +24,6 @@ public enum CategoryEnum {
                 .findFirst()
                 .orElseThrow(() -> ExceptionUtils.buildBadRequestException(message));
     }
-
     CategoryEnum(short value) {
         this.value = value;
     }

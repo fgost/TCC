@@ -2,8 +2,8 @@ package com.example.application.views.cars;
 
 import com.example.application.backend.autoMaker.AutoMakerEntity;
 import com.example.application.backend.autoMaker.AutoMakerRepository;
-import com.example.application.backend.autoModel.AutoModelEntity;
-import com.example.application.backend.autoModel.AutoModelRepository;
+import com.example.application.backend.autoModel.domain.AutoModelEntity;
+import com.example.application.backend.autoModel.repository.AutoModelRepository;
 import com.example.application.backend.car.CarFacade;
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.domain.CarTypeEnum;

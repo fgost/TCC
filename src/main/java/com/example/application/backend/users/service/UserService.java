@@ -1,5 +1,6 @@
 package com.example.application.backend.users.service;
 
+import com.example.application.backend.autoModel.repository.AutoModelRepository;
 import com.example.application.backend.car.service.CarService;
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.domain.UserPhotoEntity;
@@ -28,6 +29,7 @@ public class UserService {
     private final UserRepository repository;
     private final UserPhotoRepository photoRepository;
     private final CarService carService;
+    private final AutoModelRepository autoModelRepository;
 
     public List<UserEntity> findAll(String name, String email) {
         boolean hasName = name != null && !name.isBlank();
