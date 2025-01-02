@@ -39,7 +39,6 @@ import java.util.Objects;
 @Uses(Icon.class)
 @PermitAll
 public class CreateMaintenancePartView extends Composite<VerticalLayout> {
-
     private final CarRepository carRepository;
     private final SecurityConfig securityConfig;
     private final UserRepositoryFront userRepositoryFront;
@@ -148,12 +147,9 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         FormLayout formLayout = new FormLayout();
         formLayout.add(partNameField, descriptionField, serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, lifeSpanType, costField, statusPartField, typeField, mileageField, carField);
         formLayout.setResponsiveSteps(
-                // Use one column by default
                 new FormLayout.ResponsiveStep("0", 1),
-                // Use two columns, if layout's width exceeds 500px
-                new FormLayout.ResponsiveStep("900px", 3));
-// Stretch the username field over 2 columns
-        //formLayout.setColspan(modelField, 1);
+                new FormLayout.ResponsiveStep("900px", 3)
+        );
 
         FormLayout buttonLayout = new FormLayout();
         buttonLayout.add(saveButton, cancelButton);
@@ -161,8 +157,6 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         mainLayout.add(h3, formLayout, buttonLayout);
 
         getContent().add(mainLayout);
-
-
     }
 
     private static ComboBox<MaintenancePartStatusEnum> getMaintenancePartStatusEnumComboBox() {
@@ -186,7 +180,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
     private List<CarEntity> locateCars() {
         var user = this.securityConfig.getAuthenticatedUser();
         var idUser = userRepositoryFront.findByEmail(user);
-        return carRepository.findByuserOwner(idUser.getId());
+        return carRepository.findByUserOwner(idUser.getId());
     }
 }
 

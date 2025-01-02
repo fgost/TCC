@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS auto_model (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 ),
-    code character varying(36) NOT NULL,
-    auto_model character varying(36) NOT NULL,
+    code character varying(50) NOT NULL,
+    auto_model character varying(300) NOT NULL,
     auto_maker smallint NOT NULL,
     CONSTRAINT auto_maker_id_fk_auto_maker FOREIGN KEY (auto_maker) REFERENCES auto_maker (id),
     CONSTRAINT pk_auto_model PRIMARY KEY(id)

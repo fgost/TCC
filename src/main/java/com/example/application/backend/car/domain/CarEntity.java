@@ -2,14 +2,26 @@ package com.example.application.backend.car.domain;
 
 import com.example.application.backend.category.domain.CategoryEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-@Data
+/**
+ * Entity class representing a car in the application. Each instance of this class corresponds to a record in the
+ * "cars" table in the database. The class includes JPA annotations for entity mapping and defines the relationships
+ * with other entities. The `PrePersist` annotated method is used to set a unique code (UUID) before persisting a new
+ * entity.
+ *
+ * @author m.firmiano@aluno.ifsp.edu.br
+ */
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -32,13 +44,13 @@ public class CarEntity implements Serializable {
     private CarTypeEnum type;
     private long userOwner;
     @ManyToMany
-    @JoinTable(
-            name = "categories_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @JoinTable(name = "categories_cars", joinColumns = @JoinColumn(name = "car_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private List<CategoryEntity> categories;
 
+    /**
+     * Sets a unique code (UUID) before persisting a new entity. This method is annotated with `PrePersist` to ensure
+     * that the code is set before saving the entity to the database.
+     */
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();
@@ -55,7 +67,6 @@ public class CarEntity implements Serializable {
     public String getCode() {
         return code;
     }
-
 
 
     public String getCarModel() {

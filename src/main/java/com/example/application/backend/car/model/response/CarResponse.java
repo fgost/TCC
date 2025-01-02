@@ -1,12 +1,23 @@
 package com.example.application.backend.car.model.response;
 
 import com.example.application.backend.car.domain.CarTypeEnum;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+/**
+ * Represents the response DTO for a car entity. The CarResponse class encapsulates the response data for a car
+ * entity. It provides accessors (getters and setters) for various attributes of the car.
+ *
+ * @author m.firmiano@aluno.ifsp.edu.br
+ *
+ * @see lombok.Getter - Lombok annotation for generating getter methods
+ * @see lombok.Setter - Lombok annotation for generating setter methods
+ * @see lombok.Builder - Lombok annotation for generating a builder
+ * @see lombok.NoArgsConstructor - Lombok annotation for generating a no-args constructor
+ * @see lombok.AllArgsConstructor - Lombok annotation for generating an all-args constructor
+ * @see com.example.application.backend.car.domain.CarTypeEnum - Enum representing the type of the car
+ */
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,32 +29,6 @@ public class CarResponse {
     private String color;
     private CarTypeEnum type;
     private double mileage;
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setCarModel(String carModel) {
-        this.carModel = carModel;
-    }
-
-    public void setAutoMaker(String autoMaker) {
-        this.autoMaker = autoMaker;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public void setType(CarTypeEnum type) {
-        this.type = type;
-    }
-
-    public void setMileage(double mileage) {
-        this.mileage = mileage;
-    }
+    private String motor;
+    private String licensePlate;
 }

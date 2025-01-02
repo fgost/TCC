@@ -46,8 +46,19 @@ public class AutoModelEntity implements Serializable {
         this.autoMaker = autoMaker;
     }
 
-    public String getAutoModel() {
-        return this.autoModel;
+    public long getAutoMaker() {
+        return autoMaker;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getAutoModel() {
+        return autoModel;
+    }
 }

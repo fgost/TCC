@@ -10,19 +10,23 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
 public class AutoModelService {
-    private AutoModelRepository autoModelRepository;
+    private final AutoModelRepository autoModelRepository;
 
     public List<AutoModelEntity> findAll(Long carMaker) {
         boolean hasCarMaker = carMaker != null;
 
         if (hasCarMaker)
             return autoModelRepository.findByAutoMaker(carMaker);
-         else
+        else
             return autoModelRepository.findAll();
     }
 
@@ -59,5 +63,25 @@ public class AutoModelService {
         } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.AUTO_MODEL_DELETION_ERROR);
         }
+    }
+
+    public void verificarDuplicidade() {
+        List<AutoModelEntity> modelos = autoModelRepository.findAll();
+        Map<Long, List<AutoModelEntity>> modelosPorAutoMaker = modelos.stream()
+                .collect(Collectors.groupingBy(AutoModelEntity::getAutoMaker));
+
+        modelosPorAutoMaker.forEach((autoMaker, modelosDoMaker) -> {
+
+            Set<String> modelosUnicos = new HashSet<>();
+            List<String> modelosDuplicados = modelosDoMaker.stream()
+                    .map(AutoModelEntity::getAutoModel)
+                    .filter(modelo -> !modelosUnicos.add(modelo))
+                    .toList();
+
+            if (!modelosDuplicados.isEmpty()) {
+                System.out.println("AutoMaker: " + autoMaker);
+                System.out.println(" - Modelos duplicados: " + modelosDuplicados);
+            }
+        });
     }
 }
