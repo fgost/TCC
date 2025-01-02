@@ -19,7 +19,6 @@ import java.util.UUID;
  * entity.
  *
  * @author m.firmiano@aluno.ifsp.edu.br
- *
  */
 @Getter
 @Setter
@@ -45,11 +44,7 @@ public class CarEntity implements Serializable {
     private CarTypeEnum type;
     private long userOwner;
     @ManyToMany
-    @JoinTable(
-            name = "categories_cars",
-            joinColumns = @JoinColumn(name = "car_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @JoinTable(name = "categories_cars", joinColumns = @JoinColumn(name = "car_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private List<CategoryEntity> categories;
 
     /**
@@ -59,5 +54,98 @@ public class CarEntity implements Serializable {
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+
+    public String getCarModel() {
+        return carModel;
+    }
+
+    public void setCarModel(String carModel) {
+        this.carModel = carModel;
+    }
+
+    public String getAutoMaker() {
+        return autoMaker;
+    }
+
+    public void setAutoMaker(String autoMaker) {
+        this.autoMaker = autoMaker;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getMotor() {
+        return motor;
+    }
+
+    public void setMotor(String motor) {
+        this.motor = motor;
+    }
+
+    public String getLicencePlate() {
+        return licencePlate;
+    }
+
+    public void setLicencePlate(String licencePlate) {
+        this.licencePlate = licencePlate;
+    }
+
+    public double getMileage() {
+        return mileage;
+    }
+
+    public void setMileage(double mileage) {
+        this.mileage = mileage;
+    }
+
+    public CarTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(CarTypeEnum type) {
+        this.type = type;
+    }
+
+    public long getUserOwner() {
+        return userOwner;
+    }
+
+    public void setUserOwner(long userOwner) {
+        this.userOwner = userOwner;
+    }
+
+    public List<CategoryEntity> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<CategoryEntity> categories) {
+        this.categories = categories;
     }
 }

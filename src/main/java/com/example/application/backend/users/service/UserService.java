@@ -57,7 +57,7 @@ public class UserService {
     }
 
     public UserPhotoEntity getProfilePhotoInfo(String code) {
-        var userEntity = findByCode(code);
+        UserEntity userEntity = findByCode(code);
         return photoRepository.findByUserId(userEntity.getId())
                 .orElseThrow(() -> new ObjectNotFoundException(Constants.USER_PHOTO_NOT_FOUND));
     }
@@ -74,7 +74,7 @@ public class UserService {
 
     @Transactional
     public UserEntity update(String code, UserEntity entity) {
-        var existentEntity = findByCode(code);
+        UserEntity existentEntity = findByCode(code);
         entity.setCode(code);
         entity.setPassword(existentEntity.getPassword());
         entity.setId(existentEntity.getId());
@@ -89,7 +89,7 @@ public class UserService {
 
     @Transactional
     public UserEntity updateCar(String code, Set<OnlyCodeDto> inputList) {
-        var entity = findByCode(code);
+        UserEntity entity = findByCode(code);
         entity.getCars().clear();
         inputList.forEach(input -> {
             var car = carService.findByCode(input.getCode());

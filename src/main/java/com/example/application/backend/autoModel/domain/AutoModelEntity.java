@@ -18,8 +18,6 @@ public class AutoModelEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -44,6 +42,14 @@ public class AutoModelEntity implements Serializable {
         this.autoModel = autoModel;
     }
 
+    public void setAutoMaker(Long autoMaker) {
+        this.autoMaker = autoMaker;
+    }
+
+    public long getAutoMaker() {
+        return autoMaker;
+    }
+
     public long getId() {
         return id;
     }
@@ -54,9 +60,5 @@ public class AutoModelEntity implements Serializable {
 
     public String getAutoModel() {
         return autoModel;
-    }
-
-    public long getAutoMaker() {
-        return autoMaker;
     }
 }

@@ -1,7 +1,11 @@
 package com.example.application.backend.car.repository;
 
 import com.example.application.backend.car.domain.CarEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +16,6 @@ import java.util.Optional;
  * license plate.
  *
  * @author m.firmiano@aluno.ifsp.edu.br
- *
  * @see org.springframework.data.jpa.repository.JpaRepository - Spring Data JPA interface for generic CRUD operations
  * @see com.example.application.backend.car.domain.CarEntity - Entity representing a car
  * @see java.util.List - Java interface for ordered collections
@@ -63,7 +66,7 @@ public interface CarRepository extends JpaRepository<CarEntity, Long> {
      * Retrieves a list of car entities with car models or years containing the specified strings, ignoring case.
      *
      * @param carModel - String representing the car model to search for in car entities.
-     * @param year - String representing the year to search for in car entities.
+     * @param year     - String representing the year to search for in car entities.
      * @return {@link List<CarEntity>} - A list containing car entities with matching car models or years.
      */
     List<CarEntity> findByCarModelContainingIgnoreCaseOrYearContainingIgnoreCase(String carModel, String year);
@@ -75,4 +78,10 @@ public interface CarRepository extends JpaRepository<CarEntity, Long> {
      * @return {@link CarEntity} - The car entity with the specified license plate.
      */
     CarEntity findByLicencePlate(String licencePlate);
+
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE CarEntity ce set ce.mileage = :carsMileage where ce.id = :carId")
+    void updateMileage(@Param("carId") Long carId, @Param("carsMileage") Double carsMileage);
 }

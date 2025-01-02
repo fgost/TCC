@@ -28,7 +28,6 @@ import java.util.Set;
  * underlying data layer for performing CRUD operations on car entities.
  *
  * @author m.firmiano@aluno.ifsp.edu.br
- *
  * @see CarRepository - Repository for accessing car entities in the database
  * @see CategoryRepository - Repository for accessing category entities in the database
  * @see CategoryService - Service for handling business logic related to categories
@@ -61,8 +60,7 @@ public class CarService {
      * Find all cars in the database
      *
      * @param carModel - String representing the model of the car.
-     * @param year -  String representing the year of the car.
-     *
+     * @param year     -  String representing the year of the car.
      * @return {@link List<CarEntity> } - List of entities present in the database.
      */
     public List<CarEntity> findAll(String carModel, String year) {
@@ -86,7 +84,6 @@ public class CarService {
      * Finds a car in the database based on a given external code (UUID).
      *
      * @param code - String representing the external code (UUID) of the car.
-     *
      * @return {@link CarEntity } - Entity present in the database.
      */
     public CarEntity findByCode(String code) {
@@ -94,11 +91,15 @@ public class CarService {
                 .orElseThrow(() -> new ObjectNotFoundException(Constants.CAR_NOT_FOUND));
     }
 
+    public CarEntity findById(Long code) {
+        return carRepository.findById(code)
+                .orElseThrow(() -> new ObjectNotFoundException(Constants.CAR_NOT_FOUND));
+    }
+
     /**
      * Finds a car in the database based on a given license plate.
      *
      * @param licensePlate - String representing the license plate of the car.
-     *
      * @return {@link CarEntity } - Entity present in the database.
      */
     public CarEntity findByLicensePlate(String licensePlate) {
@@ -109,7 +110,6 @@ public class CarService {
      * Finds all cars associated with a user in the database.
      *
      * @param id - long representing the ID of the user.
-     *
      * @return {@link List<CarEntity> } - List of entities present in the database.
      */
     public List<CarEntity> findByUser(long id) {
@@ -120,8 +120,7 @@ public class CarService {
      * Inserts a car into the database based on the provided entity and associated user.
      *
      * @param carEntity - Entity to be persisted.
-     * @param user - String representing the user to be associated with the new car.
-     *
+     * @param user      - String representing the user to be associated with the new car.
      * @return {@link CarEntity } - Entity that was inserted into the database.
      */
     @Transactional
@@ -130,7 +129,6 @@ public class CarService {
             var userDb = userRepositoryFront.findByEmail(user);
             carEntity.setUserOwner(userDb.getId());
             CarEntity savedCar = carRepository.save(carEntity);
-
             List<Integer> categoryIds = categoryRepository.findAllIds();
 
             for (Integer categoryId : categoryIds) {
@@ -149,8 +147,7 @@ public class CarService {
      * Updates a car in the database based on the provided entity and the code of the existing entity.
      *
      * @param entity - Entity with the updated fields.
-     * @param code - String representing the code of the existing entity.
-     *
+     * @param code   - String representing the code of the existing entity.
      * @return {@link CarEntity } - Entity that was updated in the database.
      */
     @Transactional
@@ -174,9 +171,8 @@ public class CarService {
     /**
      * Updates the category of a car in the database based on the provided Set<OnlyCodeDto> and the code of the existing entity.
      *
-     * @param code - String representing the code of the existing entity.
+     * @param code      - String representing the code of the existing entity.
      * @param inputList - Set<OnlyCodeDto> with the updated categories.
-     *
      * @return {@link CarEntity } - Entity that was updated in the database.
      */
     @Transactional
@@ -207,5 +203,9 @@ public class CarService {
         } catch (Exception e) {
             throw ExceptionUtils.buildNotPersistedException(Constants.CAR_DELETION_ERROR);
         }
+    }
+
+    public void updateMileage(Long carId, Double carsMileage) {
+        carRepository.updateMileage(carId, carsMileage);
     }
 }

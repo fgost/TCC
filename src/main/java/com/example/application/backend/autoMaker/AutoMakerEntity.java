@@ -39,4 +39,12 @@ public class AutoMakerEntity implements Serializable {
     public void setAutoMaker(String autoMaker) {
         this.autoMaker = autoMaker;
     }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getAutoMaker() {
+        return this.autoMaker;
+    }
 }

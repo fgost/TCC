@@ -4,6 +4,7 @@ import com.example.application.backend.autoMaker.AutoMakerEntity;
 import com.example.application.backend.autoMaker.AutoMakerRepository;
 import com.example.application.backend.autoModel.domain.AutoModelEntity;
 import com.example.application.backend.autoModel.repository.AutoModelRepository;
+import com.example.application.backend.autoModel.service.AutoModelService;
 import com.example.application.backend.car.CarFacade;
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.domain.CarTypeEnum;
@@ -53,7 +54,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
     @Autowired
     private final SecurityConfig securityConfig;
 
-    public CreateCarView(CarFacade carFacade, SecurityConfig securityConfig, AutoMakerRepository autoMakerRepository, AutoModelRepository autoModelRepository) {
+    public CreateCarView(CarFacade carFacade, SecurityConfig securityConfig, AutoMakerRepository autoMakerRepository, AutoModelRepository autoModelRepository, AutoModelService autoModelService) {
         this.carFacade = carFacade;
         this.securityConfig = securityConfig;
 
@@ -94,7 +95,7 @@ public class CreateCarView extends Composite<VerticalLayout> {
             if (autoMakerField.isEmpty()) {
                 autoMakerField.setValue(new AutoMakerEntity());
             }
-            AddAutoModelDialog addAutoModelDialog = new AddAutoModelDialog(autoMakerField.getValue().getAutoMaker());
+            AddAutoModelDialog addAutoModelDialog = new AddAutoModelDialog(autoMakerField.getValue().getAutoMaker(), autoModelService, autoMakerRepository);
             addAutoModelDialog.open();
         });
 
