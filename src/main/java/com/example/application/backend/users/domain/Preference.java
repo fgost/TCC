@@ -5,6 +5,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,24 +17,7 @@ public class Preference {
     @NotBlank
     @JsonProperty(value = "key")
     private String preferenceKey;
-
     @NotBlank
     @JsonProperty(value = "value")
     private String preferenceValue;
-
-    public void setPreferenceKey(String preferenceKey) {
-        this.preferenceKey = preferenceKey;
-    }
-
-    public void setPreferenceValue(String preferenceValue) {
-        this.preferenceValue = preferenceValue;
-    }
-
-    public @NotBlank String getPreferenceKey() {
-        return preferenceKey;
-    }
-
-    public @NotBlank String getPreferenceValue() {
-        return preferenceValue;
-    }
 }
