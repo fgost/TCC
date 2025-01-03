@@ -19,6 +19,7 @@ import java.util.*;
 @Entity
 @Table(name = "users")
 public class UserEntity implements UserDetails, Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
     @Id
@@ -49,10 +50,6 @@ public class UserEntity implements UserDetails, Serializable {
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     @Override
@@ -105,44 +102,5 @@ public class UserEntity implements UserDetails, Serializable {
         Map<String, String> map = new HashMap<>();
         cars.forEach(p -> map.put(p.getCarModel(), p.getYear()));
         return map;
-    }
-
-    public Long getLastUpdateMileage() {
-        return this.lastUpdateMileage;
-    }
-
-    public Long getLastAskForUpdateMileage() {
-        return this.lastAskForUpdateMileage;
-    }
-
-    public Date getCreatedAt() {
-        return this.createdAt;
-    }
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Set<Preference> getPreferences() {
-        return preferences;
-    }
-
-    public void setPreferences(Set<Preference> preferences) {
-        this.preferences = preferences;
-    }
-
-    public List<CarEntity> getCars() {
-        return cars;
     }
 }
