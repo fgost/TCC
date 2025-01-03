@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -28,37 +30,5 @@ public class AutoModelEntity implements Serializable {
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public void setAutoModel(String autoModel) {
-        this.autoModel = autoModel;
-    }
-
-    public void setAutoMaker(Long autoMaker) {
-        this.autoMaker = autoMaker;
-    }
-
-    public long getAutoMaker() {
-        return autoMaker;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getAutoModel() {
-        return autoModel;
     }
 }
