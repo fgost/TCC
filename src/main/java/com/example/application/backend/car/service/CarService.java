@@ -208,4 +208,8 @@ public class CarService {
     public void updateMileage(Long carId, Double carsMileage) {
         carRepository.updateMileage(carId, carsMileage);
     }
+
+    public List<CarEntity> findByUserOwner(Long id) {
+        return carRepository.findByUserOwner(id);
+    }
 }
