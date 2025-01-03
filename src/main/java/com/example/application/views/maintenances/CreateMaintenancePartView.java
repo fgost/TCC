@@ -1,16 +1,17 @@
 package com.example.application.views.maintenances;
 
 import com.example.application.backend.car.domain.CarEntity;
-import com.example.application.backend.car.repository.CarRepository;
 import com.example.application.backend.car.service.CarService;
 import com.example.application.backend.maintenancePart.MaintenancePartFacade;
 import com.example.application.backend.maintenancePart.domain.LifeSpanEnum;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
 import com.example.application.backend.type.domain.TypeEnum;
-import com.example.application.backend.users.repository.UserRepositoryFront;
+import com.example.application.backend.users.domain.UserEntity;
+import com.example.application.backend.users.service.UserService;
 import com.example.application.config.security.SecurityConfig;
 import com.example.application.views.MainLayout;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -29,6 +30,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,113 +41,103 @@ import java.util.Objects;
 @Uses(Icon.class)
 @PermitAll
 public class CreateMaintenancePartView extends Composite<VerticalLayout> {
-    private final CarRepository carRepository;
+
+    @Autowired
     private final SecurityConfig securityConfig;
-    private final UserRepositoryFront userRepositoryFront;
-    private final MaintenancePartFacade maintenancePartFacade;
-
+    @Autowired
     private final CarService carService;
+    @Autowired
+    private final UserService userService;
+    private final VerticalLayout mainLayout = new VerticalLayout();
+    private final TextField partNameField = new TextField("Part Name");
+    private final TextField descriptionField = new TextField("Description");
+    private final TextField serialNumberField = new TextField("Serial Number");
+    private final TextField manufacturerField = new TextField("Manufacturer");
+    private final TextField modelField = new TextField("Model");
+    private final DatePicker installationDatePicker = new DatePicker("Installation Date");
+    private final TextField lifeSpanField = new TextField("Life Span");
+    private final ComboBox<LifeSpanEnum> lifeSpanType = getLifeSpanEnumComboBox();
+    private final TextField costField = new TextField("Cost");
+    private final ComboBox<MaintenancePartStatusEnum> statusPartField;
+    private final ComboBox<TypeEnum> typeField;
+    private final TextField mileageField = new TextField("Mileage");
+    private final ComboBox<CarEntity> carField = new ComboBox<>("Car");
+    private final Button saveButton;
+    private final Button cancelButton;
 
-    public CreateMaintenancePartView(CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront, MaintenancePartFacade maintenancePartFacade, MaintenancePartFacade maintenancePartFacade1, CarService carService) {
-        this.carRepository = carRepository;
+    public CreateMaintenancePartView(UserService userService, SecurityConfig securityConfig, MaintenancePartFacade maintenancePartFacade, CarService carService) {
         this.securityConfig = securityConfig;
-        this.userRepositoryFront = userRepositoryFront;
-        this.maintenancePartFacade = maintenancePartFacade1;
         this.carService = carService;
+        this.userService = userService;
 
-        VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setWidthFull();
         mainLayout.addClassName(LumoUtility.Padding.LARGE);
         mainLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         H3 h3 = new H3("Maintenance Register");
 
-        TextField partNameField = new TextField("Part Name");
-        TextField descriptionField = new TextField("Description");
-        TextField serialNumberField = new TextField("Serial Number");
-        TextField manufacturerField = new TextField("Manufacturer");
-        TextField modelField = new TextField("Model");
-        DatePicker installationDatePicker = new DatePicker("Installation Date");
-        TextField lifeSpanField = new TextField("Life Span");
-        ComboBox<LifeSpanEnum> lifeSpanType =  getLifeSpanEnumComboBox();
-        TextField costField = new TextField("Cost");
-
-        ComboBox<MaintenancePartStatusEnum> statusPartField = getMaintenancePartStatusEnumComboBox();
-
-        ComboBox<TypeEnum> typeField = new ComboBox<>("Maintenance Type", Arrays.asList(TypeEnum.values()));
-        typeField.setItemLabelGenerator(itemType -> {
-            if (Objects.requireNonNull(itemType) == TypeEnum.OTHERSPECIALTIES) {
-                return "OTHER SPECIALTIES";
-            }
-            if (Objects.requireNonNull(itemType) == TypeEnum.AIRCONDITIONING) {
-                return "AIR CONDITIONING";
-            }
-            return itemType.toString();
-        });
-
-        TextField mileageField = new TextField("Mileage");
-
-        ComboBox<CarEntity> carField = new ComboBox<>("Car");
-        List<CarEntity> cars = locateCars();
-        carField.setItems(cars);
+        carField.setItems(locateCars());
         carField.setItemLabelGenerator(CarEntity::getAutoMaker);
+        carField.setVisible(true);
+        carField.setEnabled(true);
 
-        Button saveButton = new Button("Save");
-        Button cancelButton = new Button("Cancel");
+        typeField = new ComboBox<>("Maintenance Type", Arrays.asList(TypeEnum.values()));
+        typeField.setItemLabelGenerator(CreateMaintenancePartView::setTypeAirConditioningOtherSpecialist);
+        typeField.setVisible(true);
+        typeField.setEnabled(true);
+
+        partNameField.setVisible(true);
+        partNameField.setEnabled(true);
+
+        statusPartField = getMaintenancePartStatusEnumComboBox();
+        statusPartField.setVisible(false);
+        statusPartField.setEnabled(false);
+
+        descriptionField.setVisible(false);
+        descriptionField.setEnabled(false);
+
+        serialNumberField.setVisible(false);
+        serialNumberField.setEnabled(false);
+
+        manufacturerField.setVisible(false);
+        manufacturerField.setEnabled(false);
+
+        modelField.setVisible(false);
+        modelField.setEnabled(false);
+
+        installationDatePicker.setVisible(false);
+        installationDatePicker.setEnabled(false);
+
+        lifeSpanField.setVisible(false);
+        lifeSpanField.setEnabled(false);
+
+        lifeSpanType.setVisible(false);
+        lifeSpanType.setEnabled(false);
+
+        costField.setVisible(false);
+        costField.setEnabled(false);
+
+        mileageField.setVisible(false);
+        mileageField.setEnabled(false);
+
+        saveButton = new Button("Save");
+        saveButton.setEnabled(false);
+        cancelButton = new Button("Cancel");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        saveButton.addClickListener(event -> {
-            if (partNameField.isEmpty() || descriptionField.isEmpty() || serialNumberField.isEmpty() ||
-                    manufacturerField.isEmpty() || modelField.isEmpty() || installationDatePicker.isEmpty() ||
-                    lifeSpanField.isEmpty() || lifeSpanType.isEmpty() || costField.isEmpty() || statusPartField.isEmpty() ||
-                    typeField.isEmpty() || mileageField.isEmpty() || carField.isEmpty()) {
-                Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
-            } else {
-                MaintenancePartEntity partEntity = new MaintenancePartEntity();
-                partEntity.setName(partNameField.getValue());
-                partEntity.setDescription(descriptionField.getValue());
-                partEntity.setSerialNumber(serialNumberField.getValue());
-                partEntity.setManufacturer(manufacturerField.getValue());
-                partEntity.setModel(modelField.getValue());
-                partEntity.setInstallationDate(installationDatePicker.getValue().toString());
-                partEntity.setLifeSpan(Double.parseDouble(lifeSpanField.getValue()));
-                partEntity.setLifeSpanType(lifeSpanType.getValue());
-                partEntity.setCost(Double.parseDouble(costField.getValue()));
-                partEntity.setStatus(statusPartField.getValue());
-                partEntity.setType(typeField.getValue());
-                partEntity.setCar(carField.getValue().getId());
+        saveButton.addClickListener(event ->
+                saveNewMaintenance(maintenancePartFacade, carService));
 
-                var mileageUpdated = Double.parseDouble(mileageField.getValue());
-                var car = carField.getValue();
-                car.setMileage(mileageUpdated);
+        cancelButton.addClickListener(event -> cleanForm());
 
-                carService.update(car.getCode(), car);
-                maintenancePartFacade.insert(partEntity);
-
-                Notification.show("Maintenance Registered successfully!", 3000, Notification.Position.TOP_CENTER);
-
-                UI.getCurrent().navigate("/");
-            }
-        });
-
-        cancelButton.addClickListener(event -> {
-            partNameField.clear();
-            descriptionField.clear();
-            serialNumberField.clear();
-            manufacturerField.clear();
-            modelField.clear();
-            installationDatePicker.clear();
-            lifeSpanField.clear();
-            lifeSpanType.clear();
-            costField.clear();
-            statusPartField.clear();
-            typeField.clear();
-            mileageField.clear();
-            carField.clear();
-        });
+        partNameField.addValueChangeListener(this::enablePartNameField);
+        serialNumberField.addValueChangeListener(this::enableManufacturerField);
+        costField.addValueChangeListener(this::enableInstallationDatePicker);
+        lifeSpanType.addValueChangeListener(this::enableMileageField);
+        mileageField.addValueChangeListener(this::enableSaveButton);
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(partNameField, descriptionField, serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, lifeSpanType, costField, statusPartField, typeField, mileageField, carField);
+        formLayout.add(carField, typeField, partNameField, statusPartField, descriptionField, serialNumberField, manufacturerField, modelField, costField, installationDatePicker, lifeSpanField, lifeSpanType, mileageField);
         formLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("900px", 3)
@@ -157,6 +149,181 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         mainLayout.add(h3, formLayout, buttonLayout);
 
         getContent().add(mainLayout);
+    }
+
+    private void enableSaveButton(AbstractField.ComponentValueChangeEvent<TextField, String> event) {
+        String mileage = event.getValue();
+        if (mileage != null) {
+            saveButton.setEnabled(true);
+        } else {
+            saveButton.setEnabled(false);
+        }
+    }
+
+    private void enableMileageField(AbstractField.ComponentValueChangeEvent<ComboBox<LifeSpanEnum>, LifeSpanEnum> event) {
+        LifeSpanEnum cost = event.getValue();
+        if (cost != null) {
+            mileageField.setVisible(true);
+            mileageField.setEnabled(true);
+        } else {
+            saveButton.setEnabled(false);
+        }
+    }
+
+    private void enableInstallationDatePicker(AbstractField.ComponentValueChangeEvent<TextField, String> event) {
+        String cost = event.getValue();
+        if (cost != null && cost.length() >= 2) {
+            installationDatePicker.setVisible(true);
+            installationDatePicker.setEnabled(true);
+
+            lifeSpanField.setVisible(true);
+            lifeSpanField.setEnabled(true);
+
+            lifeSpanType.setVisible(true);
+            lifeSpanType.setEnabled(true);
+        } else {
+
+            mileageField.setVisible(false);
+            mileageField.setEnabled(false);
+
+            carField.setVisible(false);
+            carField.setEnabled(false);
+
+            saveButton.setEnabled(false);
+        }
+    }
+
+    private void enableManufacturerField(AbstractField.ComponentValueChangeEvent<TextField, String> event) {
+        String serialNumber = event.getValue();
+        if (serialNumber != null && serialNumber.length() >= 2) {
+            manufacturerField.setVisible(true);
+            manufacturerField.setEnabled(true);
+
+            modelField.setVisible(true);
+            modelField.setEnabled(true);
+
+            costField.setVisible(true);
+            costField.setEnabled(true);
+        } else {
+            lifeSpanField.setVisible(false);
+            lifeSpanField.setEnabled(false);
+
+            installationDatePicker.setVisible(false);
+            installationDatePicker.setEnabled(false);
+
+            mileageField.setVisible(false);
+            mileageField.setEnabled(false);
+
+            carField.setVisible(false);
+            carField.setEnabled(false);
+
+            saveButton.setEnabled(false);
+        }
+    }
+
+    private void enablePartNameField(AbstractField.ComponentValueChangeEvent<TextField, String> event) {
+        String partName = event.getValue();
+        if (partName != null && partName.length() >= 3) {
+            statusPartField.setVisible(true);
+            statusPartField.setEnabled(true);
+
+            descriptionField.setVisible(true);
+            descriptionField.setEnabled(true);
+
+            serialNumberField.setVisible(true);
+            serialNumberField.setEnabled(true);
+        } else {
+            manufacturerField.setVisible(false);
+            manufacturerField.setEnabled(false);
+
+            modelField.setVisible(false);
+            modelField.setEnabled(false);
+
+            installationDatePicker.setVisible(false);
+            installationDatePicker.setEnabled(false);
+
+            lifeSpanField.setVisible(false);
+            lifeSpanField.setEnabled(false);
+
+            costField.setVisible(false);
+            costField.setEnabled(false);
+
+            typeField.setVisible(false);
+            typeField.setEnabled(false);
+
+            mileageField.setVisible(false);
+            mileageField.setEnabled(false);
+
+            carField.setVisible(false);
+            carField.setEnabled(false);
+
+            saveButton.setEnabled(false);
+        }
+    }
+
+    private void cleanForm() {
+        partNameField.clear();
+        descriptionField.clear();
+        serialNumberField.clear();
+        manufacturerField.clear();
+        modelField.clear();
+        installationDatePicker.clear();
+        lifeSpanField.clear();
+        lifeSpanType.clear();
+        costField.clear();
+        statusPartField.clear();
+        typeField.clear();
+        mileageField.clear();
+        carField.clear();
+    }
+
+    private void saveNewMaintenance(MaintenancePartFacade maintenancePartFacade, CarService carService) {
+        if (partNameField.isEmpty() || descriptionField.isEmpty() || serialNumberField.isEmpty() ||
+                manufacturerField.isEmpty() || modelField.isEmpty() || installationDatePicker.isEmpty() ||
+                lifeSpanField.isEmpty() || lifeSpanType.isEmpty() || costField.isEmpty() || statusPartField.isEmpty() ||
+                typeField.isEmpty() || mileageField.isEmpty() || carField.isEmpty()) {
+            Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
+        } else {
+            MaintenancePartEntity partEntity = getMaintenancePartEntity();
+
+            var mileageUpdated = Double.parseDouble(mileageField.getValue());
+            var car = carField.getValue();
+            car.setMileage(mileageUpdated);
+
+            carService.update(car.getCode(), car);
+            maintenancePartFacade.insert(partEntity);
+
+            Notification.show("Maintenance Registered successfully!", 3000, Notification.Position.TOP_CENTER);
+
+            UI.getCurrent().navigate("/");
+        }
+    }
+
+    private MaintenancePartEntity getMaintenancePartEntity() {
+        MaintenancePartEntity partEntity = new MaintenancePartEntity();
+        partEntity.setName(partNameField.getValue());
+        partEntity.setDescription(descriptionField.getValue());
+        partEntity.setSerialNumber(serialNumberField.getValue());
+        partEntity.setManufacturer(manufacturerField.getValue());
+        partEntity.setModel(modelField.getValue());
+        partEntity.setInstallationDate(installationDatePicker.getValue().toString());
+        partEntity.setLifeSpan(Double.parseDouble(lifeSpanField.getValue()));
+        partEntity.setLifeSpanType(lifeSpanType.getValue());
+        partEntity.setCost(Double.parseDouble(costField.getValue()));
+        partEntity.setStatus(statusPartField.getValue());
+        partEntity.setType(typeField.getValue());
+        partEntity.setCar(carField.getValue().getId());
+        return partEntity;
+    }
+
+    private static String setTypeAirConditioningOtherSpecialist(TypeEnum itemType) {
+        if (Objects.requireNonNull(itemType) == TypeEnum.OTHERSPECIALTIES) {
+            return "OTHER SPECIALTIES";
+        }
+        if (Objects.requireNonNull(itemType) == TypeEnum.AIRCONDITIONING) {
+            return "AIR CONDITIONING";
+        }
+        return itemType.toString();
     }
 
     private static ComboBox<MaintenancePartStatusEnum> getMaintenancePartStatusEnumComboBox() {
@@ -178,10 +345,8 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
     }
 
     private List<CarEntity> locateCars() {
-        var user = this.securityConfig.getAuthenticatedUser();
-        var idUser = userRepositoryFront.findByEmail(user);
-        return carRepository.findByUserOwner(idUser.getId());
+        String user = this.securityConfig.getAuthenticatedUser();
+        UserEntity idUser = userService.findByEmail(user);
+        return carService.findByUserOwner(idUser.getId());
     }
 }
-
-

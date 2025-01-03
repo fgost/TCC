@@ -158,7 +158,7 @@ public class ManageMaintenanceView extends Composite<VerticalLayout> {
             editedCar.setManufacturer(manufacturer.getValue());
             editedCar.setModel(model.getValue());
             editedCar.setInstallationDate(String.valueOf(installationDatePicker.getValue()));
-            editedCar.setLifeSpan(Integer.parseInt(lifeSpan.getValue()));
+            editedCar.setLifeSpan(Double.parseDouble(lifeSpan.getValue()));
             editedCar.setCost(Double.parseDouble(cost.getValue()));
             editedCar.setStatus(status.getValue());
             editedCar.setType(type.getValue());

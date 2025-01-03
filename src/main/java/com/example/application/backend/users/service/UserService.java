@@ -1,6 +1,5 @@
 package com.example.application.backend.users.service;
 
-import com.example.application.backend.autoModel.repository.AutoModelRepository;
 import com.example.application.backend.car.service.CarService;
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.domain.UserPhotoEntity;
@@ -24,12 +23,11 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserService {
 
-    private final UserRepositoryFront userRepositoryFront;
+    public final UserRepositoryFront userRepositoryFront;
     private final SecurityConfig securityConfig;
     private final UserRepository repository;
     private final UserPhotoRepository photoRepository;
     private final CarService carService;
-    private final AutoModelRepository autoModelRepository;
 
     public List<UserEntity> findAll(String name, String email) {
         boolean hasName = name != null && !name.isBlank();
@@ -111,7 +109,7 @@ public class UserService {
     @Transactional
     public void updateLastUpdateMileage() {
         var currentUser = securityConfig.getAuthenticatedUser();
-        var user = userRepositoryFront.findByEmail(currentUser);
+        var user = this.findByEmail(currentUser);
         user.setName(user.getName());
         user.setLastName(user.getLastName());
         user.setEmail(user.getEmail());
