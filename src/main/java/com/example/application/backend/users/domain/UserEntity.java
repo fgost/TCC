@@ -34,6 +34,8 @@ public class UserEntity implements UserDetails, Serializable {
     private long lastAskForUpdateMileage;
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+    private String latitude;
+    private String longitude;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "users_preferences", joinColumns = @JoinColumn(name = "user_id"))

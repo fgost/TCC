@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
     last_update_mileage integer NOT NULL,
     last_ask_for_update_mileage integer NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    latitude character varying(100) NOT NULL,
+    longitude character varying(100) NOT NULL,
 
     CONSTRAINT pk_users PRIMARY KEY(id),
     CONSTRAINT users_uq_email UNIQUE (email)

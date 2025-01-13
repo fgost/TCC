@@ -4,17 +4,18 @@
 CREATE TABLE IF NOT EXISTS parts (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 ),
     code character varying(36) NOT NULL,
-    name character varying(36) NOT NULL,
-    description character varying(36) NOT NULL,
-    serial_number character varying(36) NOT NULL,
-    manufacturer character varying(36) NOT NULL,
-    model character varying(36) NOT NULL,
-    installation_date character varying(36) NOT NULL,
-    life_span integer,
-    cost double precision,
-    status smallint NOT NULL,
-    type smallint NOT NULL,
-    car smallint NOT NULL,
+    name character varying(36) NOT NULL, --*
+    description character varying(36),
+    serial_number character varying(36),
+    manufacturer character varying(36),
+    model character varying(36),
+    installation_date character varying(36) NOT NULL, --*
+    life_span integer NOT NULL, --*
+    cost double precision NOT NULL, --*
+    status smallint NOT NULL, --*
+    type smallint NOT NULL, --*
+    car smallint NOT NULL, --*
+    detailedMaintenance smallint,
     CONSTRAINT car_id_fk FOREIGN KEY (car) REFERENCES cars (id),
     CONSTRAINT pk_parts PRIMARY KEY(id)
 );

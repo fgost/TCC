@@ -3,6 +3,7 @@ package com.example.application.views.main;
 import com.example.application.backend.autoModel.service.AutoModelService;
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.repository.CarRepository;
+import com.example.application.backend.maintenancePart.domain.DetailedMaintenanceEnum;
 import com.example.application.backend.maintenancePart.domain.LifeSpanEnum;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
@@ -128,44 +129,44 @@ public class MainView extends VerticalLayout {
                     dialog.setHeaderTitle("Registrar Manutenção");
 
                     TextField nameField = new TextField("Nome da Peça");
+                    TextField descriptionField = new TextField("Descrição");
+                    ComboBox<TypeEnum> typeField = new ComboBox<>("Type");
+                    TextField serialNumberField = new TextField("Número de Série");
+                    TextField manufacturerField = new TextField("Fabricante");
+                    TextField modelField = new TextField("Modelo");
+                    DatePicker installationDatePicker = new DatePicker("Installation Date");
+                    TextField lifeSpanField = new TextField("Vida Útil");
+                    ComboBox<LifeSpanEnum> lifeSpanTypeField = new ComboBox<>("Tipo de Vida Útil");ComboBox<MaintenancePartStatusEnum> statusPartField = getMaintenancePartStatusEnumComboBox();
+                    TextField costField = new TextField("Valor Gasto");
+                    TextField carsMileage = new TextField("car KM");
+
+                    if(maintenancePart.getDetailedMaintenance().equals(DetailedMaintenanceEnum.DETAILED)) {
+                        descriptionField.setValue(maintenancePart.getDescription());
+                        serialNumberField.setValue(maintenancePart.getSerialNumber());
+                        manufacturerField.setValue(maintenancePart.getManufacturer());
+                        modelField.setValue(maintenancePart.getModel());
+                    }
+
                     nameField.setValue(maintenancePart.getName());
                     nameField.setEnabled(false);
 
-                    TextField descriptionField = new TextField("Descrição");
-                    descriptionField.setValue(maintenancePart.getDescription());
                     descriptionField.setEnabled(false);
 
-                    ComboBox<TypeEnum> typeField = new ComboBox<>("Type");
                     typeField.setItems(TypeEnum.values());
                     typeField.setValue(maintenancePart.getType());
 
-                    TextField serialNumberField = new TextField("Número de Série");
-                    serialNumberField.setValue(maintenancePart.getSerialNumber());
-
-                    TextField manufacturerField = new TextField("Fabricante");
-                    manufacturerField.setValue(maintenancePart.getManufacturer());
-
-                    TextField modelField = new TextField("Modelo");
-                    modelField.setValue(maintenancePart.getModel());
-
-                    DatePicker installationDatePicker = new DatePicker("Installation Date");
                     installationDatePicker.setValue(LocalDate.parse(maintenancePart.getInstallationDate()));
 
-                    TextField lifeSpanField = new TextField("Vida Útil");
                     lifeSpanField.setValue(String.valueOf(maintenancePart.getLifeSpan()));
 
-                    ComboBox<LifeSpanEnum> lifeSpanTypeField = new ComboBox<>("Tipo de Vida Útil");
                     lifeSpanTypeField.setItems(LifeSpanEnum.values());
                     lifeSpanTypeField.setValue(maintenancePart.getLifeSpanType());
 
-                    ComboBox<MaintenancePartStatusEnum> statusPartField = getMaintenancePartStatusEnumComboBox();
                     statusPartField.setValue(MaintenancePartStatusEnum.NEW);
 
-                    TextField costField = new TextField("Valor Gasto");
                     costField.setValue(String.valueOf(maintenancePart.getCost()));
                     costField.setRequired(true);
 
-                    TextField carsMileage = new TextField("car KM");
                     carsMileage.setValue(String.valueOf(carSelectionComboBox.getValue().getMileage()));
                     carsMileage.setRequired(true);
 
@@ -195,11 +196,19 @@ public class MainView extends VerticalLayout {
                     Button cancelButton = new Button("Cancelar", eventCancel -> {
                         dialog.close();
                     });
+                    VerticalLayout layout = new VerticalLayout();
+                    if(maintenancePart.getDetailedMaintenance().equals(DetailedMaintenanceEnum.DETAILED)) {
+                        layout = new VerticalLayout(nameField, descriptionField, typeField,
+                                serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, lifeSpanTypeField,
+                                statusPartField, costField, carsMileage,
+                                saveButton, cancelButton);
+                    } else {
+                        layout = new VerticalLayout(nameField, typeField,
+                                installationDatePicker, lifeSpanField, lifeSpanTypeField,
+                                statusPartField, costField, carsMileage,
+                                saveButton, cancelButton);
+                    }
 
-                    VerticalLayout layout = new VerticalLayout(nameField, descriptionField, typeField,
-                            serialNumberField, manufacturerField, modelField, installationDatePicker, lifeSpanField, lifeSpanTypeField,
-                            statusPartField, costField, carsMileage,
-                            saveButton, cancelButton);
                     layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
                     dialog.add(layout);

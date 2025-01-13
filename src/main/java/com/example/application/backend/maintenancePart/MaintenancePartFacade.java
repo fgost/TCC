@@ -32,8 +32,8 @@ public class MaintenancePartFacade {
     }
 
     public MaintenancePartResponse insert(MaintenancePartEntity input) {
-        var savedEntity = maintenancePartService.insert(input);
-        var dto = MaintenancePartResponseMapper.INSTANCE.mapEntityToResponse(savedEntity);
+        MaintenancePartEntity savedEntity = maintenancePartService.insert(input);
+        MaintenancePartResponse dto = MaintenancePartResponseMapper.INSTANCE.mapEntityToResponse(savedEntity);
         return dto;
     }
 
