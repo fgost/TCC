@@ -72,10 +72,10 @@ public class AutoModelService {
 
         modelosPorAutoMaker.forEach((autoMaker, modelosDoMaker) -> {
 
-            Set<String> modelosUnicos = new HashSet<>();
+            Set<String> uniqueModels = new HashSet<>();
             List<String> modelosDuplicados = modelosDoMaker.stream()
                     .map(AutoModelEntity::getAutoModel)
-                    .filter(modelo -> !modelosUnicos.add(modelo))
+                    .filter(modelo -> !uniqueModels.add(modelo))
                     .toList();
 
             if (!modelosDuplicados.isEmpty()) {
