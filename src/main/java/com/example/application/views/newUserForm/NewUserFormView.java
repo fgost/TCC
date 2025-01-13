@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @Route("new-user")
@@ -28,6 +29,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 public class NewUserFormView extends Composite<VerticalLayout> {
 
     private final UserFacade userFacade;
+    private String latitudeCaptured;
+    private String longitudeCaptured;
 
     public NewUserFormView(UserFacade userFacade, UserRepository userRepository) {
         this.userFacade = userFacade;
@@ -52,15 +55,12 @@ public class NewUserFormView extends Composite<VerticalLayout> {
         firstMessage.setText("Register");
 
         saveButton.addClickListener(event -> {
-            if (firstName.isEmpty() || lastName.isEmpty() || emailField.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            if (latitudeCaptured == null || longitudeCaptured == null) {
+                Notification.show("Location not captured yet. Please wait and try again.", 3000, Notification.Position.TOP_CENTER);
+            } else if (firstName.isEmpty() || lastName.isEmpty() || emailField.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Notification.show("Please fill in all fields.", 3000, Notification.Position.TOP_CENTER);
-            }
-            var emailForm = emailField.getValue();
-            if (userRepository.findByEmail(emailForm).isPresent()) {
-                var emailInDB = userRepository.findByEmail(emailForm).get().getEmail();
-                if (emailForm.equals(emailInDB)) {
-                    Notification.show("Email already exists.", 3000, Notification.Position.TOP_CENTER);
-                }
+            } else if (userRepository.findByEmail(emailField.getValue()).isPresent()) {
+                Notification.show("Email already exists.", 3000, Notification.Position.TOP_CENTER);
             } else if (!password.getValue().equals(confirmPassword.getValue())) {
                 Notification.show("The passwords do not match. Please try again.", 3000, Notification.Position.TOP_CENTER);
             } else {
@@ -71,6 +71,8 @@ public class NewUserFormView extends Composite<VerticalLayout> {
                 user.setPassword(password.getValue());
                 user.setLastUpdateMileage(System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000));
                 user.setLastAskForUpdateMileage(System.currentTimeMillis());
+                user.setLatitude(latitudeCaptured);
+                user.setLongitude(longitudeCaptured);
 
                 this.userFacade.insert(user);
 
@@ -92,5 +94,26 @@ public class NewUserFormView extends Composite<VerticalLayout> {
         mainLayout.add(firstMessage, firstName, lastName, emailField, password, confirmPassword, saveButton, cancelButton);
 
         getContent().add(mainLayout);
+
+        UI.getCurrent().getPage().executeJs(
+                "navigator.geolocation.getCurrentPosition(" +
+                        "  function(position) {" +
+                        "    var latitude = position.coords.latitude;" +
+                        "    var longitude = position.coords.longitude;" +
+                        "    $0.$server.setLocation(latitude, longitude);" +
+                        "  }," +
+                        "  function(error) {" +
+                        "    alert('Error getting location: ' + error.message);" +
+                        "    console.error('Geolocation error:', error);" +
+                        "  }," +
+                        "  { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }" +
+                        ");", this);
+    }
+
+    @ClientCallable
+    public void setLocation(double latitude, double longitude) {
+        latitudeCaptured = String.valueOf(latitude);
+        longitudeCaptured = String.valueOf(longitude);
+        Notification.show("Location captured!");
     }
 }

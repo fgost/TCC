@@ -28,6 +28,8 @@ public class UserSeeder implements CommandLineRunner {
             admin.setLastName("firmiano");
             admin.setEmail("admin@fghost.net");
             admin.setPassword(new BCryptPasswordEncoder().encode("admin@fghost"));
+            admin.setLongitude("231");
+            admin.setLatitude("132");
             userRepository.save(admin);
         }
     }

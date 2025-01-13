@@ -1,9 +1,9 @@
-
 package com.example.application.views.maintenances;
 
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.service.CarService;
 import com.example.application.backend.maintenancePart.MaintenancePartFacade;
+import com.example.application.backend.maintenancePart.domain.DetailedMaintenanceEnum;
 import com.example.application.backend.maintenancePart.domain.LifeSpanEnum;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
@@ -38,10 +38,10 @@ import java.util.List;
 import java.util.Objects;
 
 @PageTitle("Maintenance Register")
-@Route(value = "maintenance", layout = MainLayout.class)
+@Route(value = "complete-maintenance", layout = MainLayout.class)
 @Uses(Icon.class)
 @PermitAll
-public class CreateMaintenancePartView extends Composite<VerticalLayout> {
+public class CreateCompleteMaintenancePartView extends Composite<VerticalLayout> {
 
     @Autowired
     private final SecurityConfig securityConfig;
@@ -66,7 +66,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
     private final Button saveButton;
     private final Button cancelButton;
 
-    public CreateMaintenancePartView(UserService userService, SecurityConfig securityConfig, MaintenancePartFacade maintenancePartFacade, CarService carService) {
+    public CreateCompleteMaintenancePartView(UserService userService, SecurityConfig securityConfig, MaintenancePartFacade maintenancePartFacade, CarService carService) {
         this.securityConfig = securityConfig;
         this.carService = carService;
         this.userService = userService;
@@ -83,7 +83,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         carField.setEnabled(true);
 
         typeField = new ComboBox<>("Maintenance Type", Arrays.asList(TypeEnum.values()));
-        typeField.setItemLabelGenerator(CreateMaintenancePartView::setTypeAirConditioningOtherSpecialist);
+        typeField.setItemLabelGenerator(CreateCompleteMaintenancePartView::setTypeAirConditioningOtherSpecialist);
         typeField.setVisible(true);
         typeField.setEnabled(true);
 
@@ -287,8 +287,8 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         } else {
             MaintenancePartEntity partEntity = getMaintenancePartEntity();
 
-            var mileageUpdated = Double.parseDouble(mileageField.getValue());
-            var car = carField.getValue();
+            double mileageUpdated = Double.parseDouble(mileageField.getValue());
+            CarEntity car = carField.getValue();
             car.setMileage(mileageUpdated);
 
             carService.update(car.getCode(), car);
@@ -314,6 +314,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         partEntity.setStatus(statusPartField.getValue());
         partEntity.setType(typeField.getValue());
         partEntity.setCar(carField.getValue().getId());
+        partEntity.setDetailedMaintenance(DetailedMaintenanceEnum.DETAILED);
         return partEntity;
     }
 

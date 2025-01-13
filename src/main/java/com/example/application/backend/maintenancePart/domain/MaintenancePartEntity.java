@@ -36,6 +36,8 @@ public class MaintenancePartEntity {
     private double limiteParaAlerta;
     private double limiteParaUrgencia;
 
+    private DetailedMaintenanceEnum detailedMaintenance;
+
     @PrePersist
     private void setCode() {
         this.code = UUID.randomUUID().toString();

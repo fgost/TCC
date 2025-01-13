@@ -3,11 +3,10 @@ package com.example.application.views;
 import com.example.application.config.security.SecurityConfig;
 import com.example.application.views.cars.CreateCarView;
 import com.example.application.views.cars.ManageCarView;
-import com.example.application.views.maintenances.CreateMaintenancePartView;
+import com.example.application.views.maintenances.InsertMaintenanceView;
 import com.example.application.views.logout.LogoutView;
 import com.example.application.views.main.MainView;
 import com.example.application.views.maintenances.ManageMaintenanceView;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -32,8 +31,8 @@ public class MainLayout extends AppLayout {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
-
     }
+
     private void addHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
         toggle.setAriaLabel("Menu toggle");
@@ -41,11 +40,9 @@ public class MainLayout extends AppLayout {
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
         String user = securityConfig.getAuthenticatedUser();
-
         Notification.show("Welcome " + user, 3000, Notification.Position.TOP_CENTER);
 
         addToNavbar(true, toggle, viewTitle);
-
     }
 
     private void addDrawerContent() {
@@ -67,7 +64,7 @@ public class MainLayout extends AppLayout {
         carsNavItem.addItem(new SideNavItem("Manage Car", ManageCarView.class, LineAwesomeIcon.COG_SOLID.create()));
 
         SideNavItem maintenanceNavItem = new SideNavItem("Maintenances", "manage-maintenances");
-        maintenanceNavItem.addItem(new SideNavItem("Insert Maintenance", CreateMaintenancePartView.class, LineAwesomeIcon.HAMMER_SOLID.create()));
+        maintenanceNavItem.addItem(new SideNavItem("Insert Maintenance", InsertMaintenanceView.class, LineAwesomeIcon.HAMMER_SOLID.create()));
         maintenanceNavItem.addItem(new SideNavItem("Manage Maintenance", ManageMaintenanceView.class, LineAwesomeIcon.COG_SOLID.create()));
 
         SideNavItem mainNav = new SideNavItem("Main", MainView.class, LineAwesomeIcon.CHECK_DOUBLE_SOLID.create());
