@@ -35,6 +35,7 @@ public class MaintenancePartEntity {
     private LifeSpanEnum lifeSpanType;
     private double limiteParaAlerta;
     private double limiteParaUrgencia;
+
     private DetailedMaintenanceEnum detailedMaintenance;
 
     @PrePersist
