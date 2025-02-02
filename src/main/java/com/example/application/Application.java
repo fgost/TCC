@@ -7,6 +7,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * The entry point of the Spring Boot application.
@@ -23,9 +24,9 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
         backgroundColor = "#ffffff",
         themeColor = "#000000"
 )
+@EnableJpaRepositories
 public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 }
-

@@ -9,11 +9,9 @@ import java.util.Arrays;
 @Getter
 public enum TypeEnum {
 
-    MECHANICS((short) 0),
-    ELECTRIC((short) 1),
-    AIRCONDITIONING((short) 2),
-    FLUIDS((short) 3),
-    OTHERSPECIALTIES((short) 4);
+    PREVENTIVA((short) 0),
+    PREDITIVA((short) 1),
+    CORRETIVA((short) 2);
 
     private final short value;
 

@@ -3,6 +3,18 @@ databaseChangeLog:
       file: db/migration/01-create_table_users.sql
 
   - include:
+      file: db/migration/10-create_table_components.sql
+
+  - include:
+      file: db/migration/11-create_table_parts.sql
+
+  - include:
+      file: db/migration/09-create_table_auto_maker.sql
+
+  - include:
+      file: db/migration/02-create_table_auto_model.sql
+
+  - include:
       file: db/migration/03-create-revision-tables.sql
 
   - include:
@@ -15,7 +27,7 @@ databaseChangeLog:
       file: db/migration/07-create_table_type.sql
 
   - include:
-      file: db/migration/08-create_table_parts.sql
+      file: db/migration/08-create_table_maintenance_parts.sql
 
   #  - include:
   #      file: db/initialize/initialize_car.sql
@@ -31,23 +43,16 @@ databaseChangeLog:
 
   - include:
       file: db/initialize/initialize_categories_cars.sql
-  #
-  #  - include:
-  #      file: db/initialize/initialize_part.sql
 
   - include:
-      file: db/migration/09-create_table_auto_maker.sql
+      file: db/initialize/initialize_auto_component.sql
+
+  - include:
+      file: db/initialize/initialize_part.sql
 
   - include:
       file: db/initialize/initialize_auto_maker.sql
 
   - include:
-      file: db/migration/02-create_table_auto_model.sql
-
-  - include:
       file: db/initialize/initialize_auto_model.sql
-
-  - include:
-      file: db/migration/02-create_table_auto_model_temp.sql
-
 

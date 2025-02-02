@@ -14,14 +14,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "parts")
+@Table(name = "maintenance_parts")
 public class MaintenancePartEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String code;
-    private String name;
+    private long part;
     private String description;
     private String serialNumber;
     private String manufacturer;

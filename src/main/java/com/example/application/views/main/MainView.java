@@ -9,6 +9,7 @@ import com.example.application.backend.maintenancePart.domain.MaintenancePartEnt
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
 import com.example.application.backend.maintenancePart.repository.MaintenancePartRepository;
 import com.example.application.backend.maintenancePart.service.MaintenancePartService;
+import com.example.application.backend.part.service.PartService;
 import com.example.application.backend.type.domain.TypeEnum;
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.repository.UserRepositoryFront;
@@ -49,29 +50,31 @@ public class MainView extends VerticalLayout {
     private final SecurityConfig securityConfig;
     private final UserRepositoryFront userRepositoryFront;
     private final AutoModelService autoModelService;
+    private final PartService partService;
 
     private CarEntity selectedCar;
 
-    public MainView(AutoModelService autoModelService, MaintenancePartRepository maintenancePartRepository, MaintenancePartService maintenancePartService, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront) {
+    public MainView(PartService partService, AutoModelService autoModelService, MaintenancePartRepository maintenancePartRepository, MaintenancePartService maintenancePartService, CarRepository carRepository, SecurityConfig securityConfig, UserRepositoryFront userRepositoryFront) {
         this.maintenancePartRepository = maintenancePartRepository;
         this.maintenancePartService = maintenancePartService;
         this.carRepository = carRepository;
         this.securityConfig = securityConfig;
         this.userRepositoryFront = userRepositoryFront;
         this.autoModelService = autoModelService;
-
+        this.partService = partService;
         addClassName("list-view");
         setSizeFull();
 
         autoModelService.verificarDuplicidade();
 
         partsGrid.removeAllColumns();
-        partsGrid.addColumn(MaintenancePartEntity::getName).setHeader("Name");
+        partsGrid.addColumn(maintenancePart -> partService.findById(maintenancePart.getPart()).getPartName())
+                .setHeader("Name");
         partsGrid.addColumn(maintenancePart -> "CRITICAL")
                 .setHeader("Status");
         partsGrid.addComponentColumn(maintenancePart -> {
-            Map<String, Double> averageCostByPartName = calculateAverageCostByPartName(loadAllMaintenanceParts());
-            return new Text(String.valueOf(averageCostByPartName.getOrDefault(maintenancePart.getName(), 0.0)));
+            Map<Long, Double> averageCostByPartName = calculateAverageCostByPartName(loadAllMaintenanceParts());
+            return new Text(String.valueOf(averageCostByPartName.getOrDefault(maintenancePart.getPart(), 0.0)));
         }).setHeader("Average Cost");
 
         List<String> licencePlates = locateLicencePlates();
@@ -147,7 +150,7 @@ public class MainView extends VerticalLayout {
                         modelField.setValue(maintenancePart.getModel());
                     }
 
-                    nameField.setValue(maintenancePart.getName());
+                    nameField.setValue(localePart(maintenancePart.getPart()));
                     nameField.setEnabled(false);
 
                     descriptionField.setEnabled(false);
@@ -183,13 +186,13 @@ public class MainView extends VerticalLayout {
                         maintenance.setModel(modelField.getValue());
                         maintenance.setType(typeField.getValue());
                         maintenance.setSerialNumber(serialNumberField.getValue());
-                        maintenance.setName(nameField.getValue());
+                        maintenance.setPart(Long.parseLong(nameField.getValue()));
                         maintenance.setStatus(statusPartField.getValue());
 
                         String carMileage = carsMileage.toString();
 
                         maintenancePartService.processarManutencao(maintenance, code, licensePlate, carMileage);
-                        Notification.show("Manutenção salva para a peça: " + maintenancePart.getName());
+                        Notification.show("Manutenção salva para a peça: " + maintenancePart.getPart());
                         dialog.close();
                     });
 
@@ -242,6 +245,10 @@ public class MainView extends VerticalLayout {
         askForUpdateMileageCars();
     }
 
+    private String localePart(long part) {
+        return partService.findById(part).getPartName();
+    }
+
     private static ComboBox<MaintenancePartStatusEnum> getMaintenancePartStatusEnumComboBox() {
         ComboBox<MaintenancePartStatusEnum> statusPartField = new ComboBox<>("Status Part", Arrays.asList(MaintenancePartStatusEnum.values()));
         statusPartField.setItemLabelGenerator(itemStatus -> {
@@ -258,7 +265,7 @@ public class MainView extends VerticalLayout {
 
     private void realizarManutencao(MaintenancePartEntity maintenancePart) {
         // Lógica para realizar a manutenção
-        Notification.show("Manutenção realizada para a peça: " + maintenancePart.getName());
+        Notification.show("Manutenção realizada para a peça: " + maintenancePart.getPart());
     }
 
 
@@ -267,19 +274,19 @@ public class MainView extends VerticalLayout {
         List<MaintenancePartEntity> allMaintenanceParts = new ArrayList<>();
 
         for (CarEntity car : cars) {
-            allMaintenanceParts.addAll(maintenancePartRepository.findByCar(car.getId()));
+            allMaintenanceParts.addAll(maintenancePartService.findByCar(car.getId()));
         }
 
         return allMaintenanceParts;
     }
 
-    private Map<String, Double> calculateAverageCostByPartName(List<MaintenancePartEntity> maintenanceParts) {
+    private Map<Long, Double> calculateAverageCostByPartName(List<MaintenancePartEntity> maintenanceParts) {
         if (maintenanceParts.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        Map<String, List<MaintenancePartEntity>> partsByName = maintenanceParts.stream()
-                .collect(Collectors.groupingBy(MaintenancePartEntity::getName));
+        Map<Long, List<MaintenancePartEntity>> partsByName = maintenanceParts.stream()
+                .collect(Collectors.groupingBy(MaintenancePartEntity::getPart));
 
         return partsByName.entrySet().stream()
                 .collect(Collectors.toMap(
