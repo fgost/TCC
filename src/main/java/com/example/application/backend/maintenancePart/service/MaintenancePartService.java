@@ -8,7 +8,6 @@ import com.example.application.backend.maintenancePart.repository.MaintenancePar
 import com.example.application.domain.Constants;
 import com.example.application.exception.domain.ObjectNotFoundException;
 import com.example.application.exception.util.ExceptionUtils;
-import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +52,7 @@ public class MaintenancePartService {
     public MaintenancePartEntity update(String code, MaintenancePartEntity entity) {
         MaintenancePartEntity existentEntity = findByCode(code);
         existentEntity.setCode(code);
-        existentEntity.setName(entity.getName());
+        existentEntity.setPart(entity.getPart());
         existentEntity.setDescription(entity.getDescription());
         existentEntity.setSerialNumber(entity.getSerialNumber());
         existentEntity.setManufacturer(entity.getManufacturer());
@@ -84,13 +83,13 @@ public class MaintenancePartService {
     }
 
     public void ajustarStatusManutencoes(CarEntity car) {
-        List<MaintenancePartEntity> maintenances = repository.findByCar(car.getId());
+        List<MaintenancePartEntity> maintenances = this.findByCar(car.getId());
         for (MaintenancePartEntity maintenance : maintenances) {
             if (car.getMileage() > maintenance.getLimiteParaAlerta() &&
                     car.getMileage() < maintenance.getLimiteParaUrgencia()) {
                 maintenance.setStatus(MaintenancePartStatusEnum.USED);
             }
-            if (   car.getMileage() > maintenance.getLimiteParaUrgencia()) {
+            if (car.getMileage() > maintenance.getLimiteParaUrgencia()) {
                 maintenance.setStatus(MaintenancePartStatusEnum.URGENT_REPLACEMENT);
             }
             update(maintenance.getCode(), maintenance);
@@ -101,7 +100,7 @@ public class MaintenancePartService {
         double carMileage = carService.findById(carId).getMileage();
         double futureChange = carMileage + lifeSpan;
 
-        double precisaTrocar = futureChange * (marcaAlertaPeca/100);
+        double precisaTrocar = futureChange * (marcaAlertaPeca / 100);
 
         return futureChange - precisaTrocar;
     }
@@ -119,5 +118,9 @@ public class MaintenancePartService {
 
         maintenancePart.setCar(carId);
         insert(maintenancePart);
+    }
+
+    public List<MaintenancePartEntity> findByCar(long carId) {
+        return repository.findByCar(carId);
     }
 }

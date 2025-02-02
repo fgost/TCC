@@ -2,11 +2,15 @@ package com.example.application.views.maintenances;
 
 import com.example.application.backend.car.domain.CarEntity;
 import com.example.application.backend.car.service.CarService;
+import com.example.application.backend.component.domain.ComponentEntity;
+import com.example.application.backend.component.service.ComponentService;
 import com.example.application.backend.maintenancePart.MaintenancePartFacade;
 import com.example.application.backend.maintenancePart.domain.DetailedMaintenanceEnum;
 import com.example.application.backend.maintenancePart.domain.LifeSpanEnum;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
+import com.example.application.backend.part.domain.PartEntity;
+import com.example.application.backend.part.service.PartService;
 import com.example.application.backend.type.domain.TypeEnum;
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.service.UserService;
@@ -49,9 +53,14 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
     private final CarService carService;
     @Autowired
     private final UserService userService;
+    @Autowired
+    private final PartService partService;
+    @Autowired
+    private final ComponentService componentService;
+
     private final VerticalLayout mainLayout = new VerticalLayout();
 
-    private final TextField partNameField = new TextField("Part Name");
+    private final ComboBox<PartEntity> partNameField = new ComboBox<>("Part Name");
     private final DatePicker installationDatePicker = new DatePicker("Installation Date");
     private final TextField lifeSpanField = new TextField("Life Span");
     private final ComboBox<LifeSpanEnum> lifeSpanType = getLifeSpanEnumComboBox();
@@ -60,14 +69,17 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
     private final ComboBox<TypeEnum> typeField;
     private final TextField mileageField = new TextField("Mileage");
     private final ComboBox<CarEntity> carField = new ComboBox<>("Car");
+    private final ComboBox<ComponentEntity> componentField = new ComboBox<>("Component");
 
     private final Button saveButton;
     private final Button cancelButton;
 
-    public CreateSimpleMaintenancePartView(UserService userService, SecurityConfig securityConfig, MaintenancePartFacade maintenancePartFacade, CarService carService) {
+    public CreateSimpleMaintenancePartView(ComponentService componentService, PartService partService, UserService userService, SecurityConfig securityConfig, MaintenancePartFacade maintenancePartFacade, CarService carService) {
         this.securityConfig = securityConfig;
         this.carService = carService;
         this.userService = userService;
+        this.partService = partService;
+        this.componentService = componentService;
 
         mainLayout.setWidthFull();
         mainLayout.addClassName(LumoUtility.Padding.LARGE);
@@ -84,6 +96,13 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
         typeField.setItemLabelGenerator(CreateSimpleMaintenancePartView::setTypeAirConditioningOtherSpecialist);
         typeField.setVisible(true);
         typeField.setEnabled(true);
+
+        List<ComponentEntity> components = locateComponents();
+        componentField.setItems(components);
+        componentField.setItemLabelGenerator(ComponentEntity::getComponentName);
+        componentField.setVisible(true);
+        componentField.setEnabled(true);
+        componentField.addValueChangeListener(this::setPartName);
 
         partNameField.setVisible(true);
         partNameField.setEnabled(true);
@@ -122,7 +141,7 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
         costField.addValueChangeListener(this::enableSaveButton);
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(carField, typeField, partNameField, lifeSpanField, lifeSpanType, statusPartField, costField, installationDatePicker, mileageField);
+        formLayout.add(carField, typeField, componentField, partNameField, lifeSpanField, lifeSpanType, statusPartField, costField, installationDatePicker, mileageField);
         formLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("900px", 3)
@@ -134,6 +153,11 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
         mainLayout.add(h3, formLayout, buttonLayout);
 
         getContent().add(mainLayout);
+    }
+
+    private void setPartName(AbstractField.ComponentValueChangeEvent<ComboBox<ComponentEntity>, ComponentEntity> event) {
+        partNameField.setItems(locateParts(event.getValue().getId()));
+        partNameField.setItemLabelGenerator(PartEntity::getPartName);
     }
 
     private void enableCostField(AbstractField.ComponentValueChangeEvent<ComboBox<LifeSpanEnum>, LifeSpanEnum> event) {
@@ -170,10 +194,9 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
     }
 
 
-
-    private void enableStatusPartField(AbstractField.ComponentValueChangeEvent<TextField, String> event) {
-        String partName = event.getValue();
-        if (partName != null && partName.length() >= 3) {
+    private void enableStatusPartField(AbstractField.ComponentValueChangeEvent<ComboBox<PartEntity>, PartEntity> event) {
+        PartEntity partName = event.getValue();
+        if (partName != null) {
             statusPartField.setVisible(true);
             statusPartField.setEnabled(true);
 
@@ -245,7 +268,7 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
 
     private MaintenancePartEntity getMaintenancePartEntity() {
         MaintenancePartEntity partEntity = new MaintenancePartEntity();
-        partEntity.setName(partNameField.getValue());
+        partEntity.setPart(partNameField.getValue().getId());
         partEntity.setInstallationDate(installationDatePicker.getValue().toString());
         partEntity.setLifeSpan(Double.parseDouble(lifeSpanField.getValue()));
         partEntity.setLifeSpanType(lifeSpanType.getValue());
@@ -258,12 +281,7 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
     }
 
     private static String setTypeAirConditioningOtherSpecialist(TypeEnum itemType) {
-        if (Objects.requireNonNull(itemType) == TypeEnum.OTHERSPECIALTIES) {
-            return "OTHER SPECIALTIES";
-        }
-        if (Objects.requireNonNull(itemType) == TypeEnum.AIRCONDITIONING) {
-            return "AIR CONDITIONING";
-        }
+
         return itemType.toString();
     }
 
@@ -289,5 +307,13 @@ public class CreateSimpleMaintenancePartView extends Composite<VerticalLayout> {
         String user = this.securityConfig.getAuthenticatedUser();
         UserEntity idUser = userService.findByEmail(user);
         return carService.findByUserOwner(idUser.getId());
+    }
+
+    private List<ComponentEntity> locateComponents() {
+        return componentService.findAll();
+    }
+
+    private List<PartEntity> locateParts(long componentId) {
+        return partService.findByComponent(componentId);
     }
 }

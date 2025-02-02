@@ -17,7 +17,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/carview/v1/part")
+@RequestMapping("/carview/v1/maintenance-part")
 public class MaintenancePartController {
 
     private MaintenancePartFacade maintenancePartFacade;

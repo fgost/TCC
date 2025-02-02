@@ -7,6 +7,7 @@ import com.example.application.backend.maintenancePart.MaintenancePartFacade;
 import com.example.application.backend.maintenancePart.domain.LifeSpanEnum;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartEntity;
 import com.example.application.backend.maintenancePart.domain.MaintenancePartStatusEnum;
+import com.example.application.backend.part.domain.PartEntity;
 import com.example.application.backend.type.domain.TypeEnum;
 import com.example.application.backend.users.domain.UserEntity;
 import com.example.application.backend.users.service.UserService;
@@ -50,7 +51,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
     @Autowired
     private final UserService userService;
     private final VerticalLayout mainLayout = new VerticalLayout();
-    private final TextField partNameField = new TextField("Part Name");
+    private final ComboBox<PartEntity> partNameField = new ComboBox<>("Part Name");
     private final TextField descriptionField = new TextField("Description");
     private final TextField serialNumberField = new TextField("Serial Number");
     private final TextField manufacturerField = new TextField("Manufacturer");
@@ -83,7 +84,6 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         carField.setEnabled(true);
 
         typeField = new ComboBox<>("Maintenance Type", Arrays.asList(TypeEnum.values()));
-        typeField.setItemLabelGenerator(CreateMaintenancePartView::setTypeAirConditioningOtherSpecialist);
         typeField.setVisible(true);
         typeField.setEnabled(true);
 
@@ -222,9 +222,9 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
         }
     }
 
-    private void enablePartNameField(AbstractField.ComponentValueChangeEvent<TextField, String> event) {
-        String partName = event.getValue();
-        if (partName != null && partName.length() >= 3) {
+    private void enablePartNameField(AbstractField.ComponentValueChangeEvent<ComboBox<PartEntity>, PartEntity> event) {
+        PartEntity partName = event.getValue();
+        if (partName != null) {
             statusPartField.setVisible(true);
             statusPartField.setEnabled(true);
 
@@ -302,7 +302,7 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
 
     private MaintenancePartEntity getMaintenancePartEntity() {
         MaintenancePartEntity partEntity = new MaintenancePartEntity();
-        partEntity.setName(partNameField.getValue());
+        partEntity.setPart(partNameField.getValue().getId());
         partEntity.setDescription(descriptionField.getValue());
         partEntity.setSerialNumber(serialNumberField.getValue());
         partEntity.setManufacturer(manufacturerField.getValue());
@@ -318,12 +318,6 @@ public class CreateMaintenancePartView extends Composite<VerticalLayout> {
     }
 
     private static String setTypeAirConditioningOtherSpecialist(TypeEnum itemType) {
-        if (Objects.requireNonNull(itemType) == TypeEnum.OTHERSPECIALTIES) {
-            return "OTHER SPECIALTIES";
-        }
-        if (Objects.requireNonNull(itemType) == TypeEnum.AIRCONDITIONING) {
-            return "AIR CONDITIONING";
-        }
         return itemType.toString();
     }
 
