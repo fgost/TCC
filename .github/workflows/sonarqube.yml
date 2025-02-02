@@ -84,12 +84,13 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
+          distribution: 'corretto'
 
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./gradlew sonarqube \
-          -Dsonar.projectKey=<SEU_PROJETO> \
+          mvn sonar:sonar \
+          -Dsonar.projectKey=Carview \
           -Dsonar.host.url=http://localhost:9000 \
           -Dsonar.login=$SONAR_TOKEN
