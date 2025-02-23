@@ -24,12 +24,12 @@ services:
     depends_on:
       - carview-api-java-postgres
 
-#  carview-api-java-api:
-#    container_name: carview-api-java-api
-#    build: .
-#    restart: always
-#    platform: linux/amd64
-#    ports:
-#      - "8084:5001"
-#    depends_on:
-#      - carview-api-java-postgres
+  carview-api-java-api:
+    container_name: carview-api-java-api
+    build: .
+    restart: always
+    platform: linux/amd64
+    ports:
+      - "8080:5003"
+    depends_on:
+      - carview-api-java-postgres

@@ -12,7 +12,10 @@
         <java.version>17</java.version>
         <vaadin.version>24.6.0</vaadin.version>
         <swagger.version>2.9.2</swagger.version>
+        <sonar.organization>fghost</sonar.organization>
     </properties>
+
+
 
     <parent>
         <groupId>org.springframework.boot</groupId>
